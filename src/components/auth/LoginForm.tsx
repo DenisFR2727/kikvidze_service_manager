@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 import type { LoginRequest } from "@/lib/types";
 import styles from "./LoginForm.module.scss";
 
@@ -19,7 +19,7 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
   const [formError, setFormError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const nextLogin = login.trim();

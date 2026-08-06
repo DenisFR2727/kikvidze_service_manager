@@ -42,7 +42,7 @@
 - [x] T006 Implement phone normalize helper in `backend/src/utils/phone.ts`
 - [x] T007 [P] Create Mongoose `Admin` model in `backend/src/models/Admin.ts`
 - [x] T008 [P] Create Mongoose `Client` model with unique `phoneNormalized` in `backend/src/models/Client.ts`
-- [ ] T009 [P] Create Mongoose `Job` model (status enum, prices ≥ 0 validators) in `backend/src/models/Job.ts`
+- [x] T009 [P] Create Mongoose `Job` model (status enum, prices ≥ 0 validators) in `backend/src/models/Job.ts`
 - [ ] T010 Implement shared error helper + Zod validate middleware in `backend/src/middleware/validate.ts` and `backend/src/middleware/errorHandler.ts`
 - [ ] T011 Implement `requireAuth` session middleware in `backend/src/middleware/auth.ts`
 - [ ] T012 Implement Express app bootstrap in `backend/src/index.ts` (cors+credentials, cookie session, JSON, mount `/api/*`, connect DB, seed single admin from env if missing)

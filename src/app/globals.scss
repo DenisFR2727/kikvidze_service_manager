@@ -1,17 +1,8 @@
-// :root {
-//   --background: #ffffff;
-//   //   --foreground: #171717;
-// }
-
-// @media (prefers-color-scheme: dark) {
-//   :root {
-//     //  --background: #0a0a0a;
-//     --foreground: #ededed;
-//   }
-// }
+@use "../styles/variables";
 
 html {
   height: 100%;
+  color-scheme: light;
 }
 
 html,
@@ -26,7 +17,9 @@ body {
   flex-direction: column;
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: var(--leading-normal);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -42,8 +35,80 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+/* —— Layout shells (route groups) —— */
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 100%;
+}
+
+.app-shell__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: var(--header-height);
+  padding-inline: var(--layout-gutter);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.app-shell__brand {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.02em;
+  color: var(--color-fg);
+}
+
+.app-shell__main {
+  flex: 1;
+  width: 100%;
+  max-width: var(--layout-max-width);
+  margin-inline: auto;
+  padding: var(--space-6) var(--layout-gutter);
+}
+
+.auth-shell {
+  display: flex;
+  flex: 1;
+  min-height: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6) var(--layout-gutter);
+  background:
+    radial-gradient(
+      120% 80% at 50% 0%,
+      var(--color-accent-subtle),
+      transparent 55%
+    ),
+    var(--color-bg);
+}
+
+.auth-shell__main {
+  width: 100%;
+  max-width: var(--auth-form-max-width);
+}
+
+.login__title {
+  margin-bottom: var(--space-6);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.03em;
+  line-height: var(--leading-tight);
+  color: var(--color-fg);
+  text-align: center;
 }

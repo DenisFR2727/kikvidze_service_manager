@@ -49,7 +49,7 @@
 - [x] T013 [P] Add typed API client with `credentials: 'include'` in `src/lib/api-client.ts`
 - [x] T014 [P] Add shared frontend types for Job/Client/Status in `src/lib/types.ts`
 - [x] T015 Create Next.js route groups: move home into `src/app/(app)/page.tsx`, add `src/app/(auth)/login/page.tsx`, add auth layout shells `src/app/(app)/layout.tsx` and `src/app/(auth)/layout.tsx`
-- [ ] T016 Add SCSS partials tokens/layout in `src/styles/_variables.scss` and import from `src/app/globals.scss`
+- [x] T016 Add SCSS partials tokens/layout in `src/styles/_variables.scss` and import from `src/app/globals.scss`
 
 **Checkpoint**: `backend` boots on :4000, Mongo connects, models compile; Next app has auth/app shells and API client ready
 

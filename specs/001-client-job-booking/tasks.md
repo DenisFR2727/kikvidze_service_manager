@@ -63,7 +63,7 @@
 
 ### Implementation for User Story 0
 
-- [ ] T017 [US0] Implement `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me` in `backend/src/routes/auth.ts` and mount in `backend/src/index.ts`
+- [x] T017 [US0] Implement `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me` in `backend/src/routes/auth.ts` and mount in `backend/src/index.ts`
 - [ ] T018 [P] [US0] Build `LoginForm` UI in `src/components/auth/LoginForm.tsx` + `LoginForm.module.scss`
 - [ ] T019 [US0] Wire login page to API in `src/app/(auth)/login/page.tsx`
 - [ ] T020 [US0] Add client auth helpers (`getMe`, redirect rules) in `src/lib/auth.ts` and protect `(app)` layout in `src/app/(app)/layout.tsx` (redirect to `/login` if 401)

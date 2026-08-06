@@ -40,7 +40,7 @@
 **⚠️ CRITICAL**: No user story work until this phase is complete
 
 - [x] T006 Implement phone normalize helper in `backend/src/utils/phone.ts`
-- [ ] T007 [P] Create Mongoose `Admin` model in `backend/src/models/Admin.ts`
+- [x] T007 [P] Create Mongoose `Admin` model in `backend/src/models/Admin.ts`
 - [ ] T008 [P] Create Mongoose `Client` model with unique `phoneNormalized` in `backend/src/models/Client.ts`
 - [ ] T009 [P] Create Mongoose `Job` model (status enum, prices ≥ 0 validators) in `backend/src/models/Job.ts`
 - [ ] T010 Implement shared error helper + Zod validate middleware in `backend/src/middleware/validate.ts` and `backend/src/middleware/errorHandler.ts`

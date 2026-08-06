@@ -67,7 +67,7 @@
 - [x] T018 [P] [US0] Build `LoginForm` UI in `src/components/auth/LoginForm.tsx` + `LoginForm.module.scss`
 - [x] T019 [US0] Wire login page to API in `src/app/(auth)/login/page.tsx`
 - [x] T020 [US0] Add client auth helpers (`getMe`, redirect rules) in `src/lib/auth.ts` and protect `(app)` layout in `src/app/(app)/layout.tsx` (redirect to `/login` if 401)
-- [ ] T021 [US0] Add logout control in `src/components/auth/LogoutButton.tsx` and place in `src/app/(app)/layout.tsx`
+- [x] T021 [US0] Add logout control in `src/components/auth/LogoutButton.tsx` and place in `src/app/(app)/layout.tsx`
 
 **Checkpoint**: Auth gate works end-to-end (FR-018–022, SC-008–009)
 

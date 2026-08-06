@@ -46,7 +46,7 @@
 - [x] T010 Implement shared error helper + Zod validate middleware in `backend/src/middleware/validate.ts` and `backend/src/middleware/errorHandler.ts`
 - [x] T011 Implement `requireAuth` session middleware in `backend/src/middleware/auth.ts`
 - [x] T012 Implement Express app bootstrap in `backend/src/index.ts` (cors+credentials, cookie session, JSON, mount `/api/*`, connect DB, seed single admin from env if missing)
-- [ ] T013 [P] Add typed API client with `credentials: 'include'` in `src/lib/api-client.ts`
+- [x] T013 [P] Add typed API client with `credentials: 'include'` in `src/lib/api-client.ts`
 - [ ] T014 [P] Add shared frontend types for Job/Client/Status in `src/lib/types.ts`
 - [ ] T015 Create Next.js route groups: move home into `src/app/(app)/page.tsx`, add `src/app/(auth)/login/page.tsx`, add auth layout shells `src/app/(app)/layout.tsx` and `src/app/(auth)/layout.tsx`
 - [ ] T016 Add SCSS partials tokens/layout in `src/styles/_variables.scss` and import from `src/app/globals.scss`

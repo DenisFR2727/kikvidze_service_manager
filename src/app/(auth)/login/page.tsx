@@ -2,15 +2,16 @@
 
 import { useRouter } from "next/navigation";
 import { LoginForm } from "@/components/auth/LoginForm";
-import { ApiError, apiClient } from "@/lib/api-client";
-import type { LoginRequest, LoginResponse } from "@/lib/types";
+import { ApiError } from "@/lib/api-client";
+import { APP_HOME_PATH, login } from "@/lib/auth";
+import type { LoginRequest } from "@/lib/types";
 
 export default function LoginPage() {
   const router = useRouter();
 
   async function handleLogin(values: LoginRequest) {
     try {
-      await apiClient.post<LoginResponse>("/api/auth/login", values);
+      await login(values);
     } catch (err) {
       if (err instanceof ApiError && err.isUnauthorized) {
         throw new Error("Невірний логін або пароль");
@@ -21,7 +22,7 @@ export default function LoginPage() {
       throw err;
     }
 
-    router.replace("/");
+    router.replace(APP_HOME_PATH);
     router.refresh();
   }
 

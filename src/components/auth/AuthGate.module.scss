@@ -1,0 +1,14 @@
+.pending {
+  display: flex;
+  flex: 1;
+  min-height: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  background: var(--color-bg);
+}
+
+.pendingText {
+  font-size: var(--text-sm);
+  color: var(--color-fg-muted);
+}

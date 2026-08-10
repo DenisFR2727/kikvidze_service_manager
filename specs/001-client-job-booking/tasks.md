@@ -81,7 +81,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T022 [US1] Implement Client find-or-create service in `backend/src/services/clientService.ts`
+- [x] T022 [US1] Implement Client find-or-create service in `backend/src/services/clientService.ts`
 - [ ] T023 [US1] Implement `POST /api/jobs` (upsert client + create job `queued`) in `backend/src/routes/jobs.ts` with Zod schema in `backend/src/schemas/jobSchemas.ts`
 - [ ] T024 [P] [US1] Build create `JobForm` in `src/components/jobs/JobForm.tsx` + `JobForm.module.scss` (phone, optional name, car, category, datetime, prices)
 - [ ] T025 [US1] Embed create panel on home in `src/app/(app)/page.tsx` and call `POST /api/jobs` via `src/lib/api-client.ts`

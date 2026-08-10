@@ -1,6 +1,17 @@
-/**
- * Home — jobs list / calendar / create (wired in later user-story tasks).
- */
+"use client";
+
+import { JobForm } from "@/components/jobs/JobForm";
+import { apiClient } from "@/lib/api-client";
+import type { CreateJobInput, Job } from "@/lib/types";
+
 export default function HomePage() {
-  return <div className="home" />;
+  async function handleCreateJob(values: CreateJobInput) {
+    await apiClient.post<Job>("/api/jobs", values);
+  }
+
+  return (
+    <div className="home">
+      <JobForm onSubmit={handleCreateJob} />
+    </div>
+  );
 }

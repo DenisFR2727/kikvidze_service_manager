@@ -2,12 +2,8 @@
 
 import { useEffect, useId, useState } from "react";
 import { ApiError, apiClient } from "@/lib/api-client";
-import {
-  JOB_STATUS_LABELS,
-  type CreateJobInput,
-  type Job,
-  type ListResponse,
-} from "@/lib/types";
+import { JOB_STATUS_LABELS, uk } from "@/lib/i18n/uk";
+import type { CreateJobInput, Job, ListResponse } from "@/lib/types";
 import styles from "./JobForm.module.scss";
 
 type FieldKey =
@@ -41,15 +37,15 @@ function parseNonNegativePrice(
 ): { value?: number; error?: string } {
   const trimmed = raw.trim();
   if (!trimmed) {
-    return { error: `Вкажіть ${label}` };
+    return { error: uk.job.priceRequired(label) };
   }
 
   const value = Number(trimmed.replace(",", "."));
   if (!Number.isFinite(value)) {
-    return { error: `${label} має бути числом` };
+    return { error: uk.job.priceNotNumber(label) };
   }
   if (value < 0) {
-    return { error: `${label} не може бути від’ємною` };
+    return { error: uk.job.priceNegative(label) };
   }
 
   return { value };
@@ -120,8 +116,11 @@ export function JobForm({ onSubmit, categories, onCreated }: JobFormProps) {
   }
 
   function buildSuccessMessage(job: Job): string {
-    const statusLabel = JOB_STATUS_LABELS[job.status];
-    return `Запис збережено: ${job.car} — ${job.category} (${statusLabel})`;
+    return uk.job.saveSuccessDetail(
+      job.car,
+      job.category,
+      JOB_STATUS_LABELS[job.status],
+    );
   }
 
   function validate(): { payload?: CreateJobInput; errors: FieldErrors } {
@@ -132,32 +131,35 @@ export function JobForm({ onSubmit, categories, onCreated }: JobFormProps) {
     const trimmedName = name.trim();
 
     if (!nextPhone) {
-      errors.phone = "Вкажіть телефон клієнта";
+      errors.phone = uk.job.phoneRequired;
     }
 
     if (!nextCar) {
-      errors.car = "Вкажіть авто";
+      errors.car = uk.job.carRequired;
     }
 
     if (!nextCategory) {
-      errors.category = "Вкажіть категорію робіт";
+      errors.category = uk.job.categoryRequired;
     }
 
     if (!scheduledAtLocal) {
-      errors.scheduledAt = "Вкажіть дату та час";
+      errors.scheduledAt = uk.job.scheduledRequired;
     } else {
       const scheduledDate = new Date(scheduledAtLocal);
       if (Number.isNaN(scheduledDate.getTime())) {
-        errors.scheduledAt = "Некоректна дата або час";
+        errors.scheduledAt = uk.job.scheduledInvalid;
       }
     }
 
-    const work = parseNonNegativePrice(workPrice, "ціну роботи");
+    const work = parseNonNegativePrice(workPrice, uk.job.workPriceLabel);
     if (work.error) {
       errors.workPrice = work.error;
     }
 
-    const material = parseNonNegativePrice(materialPrice, "ціну матеріалів");
+    const material = parseNonNegativePrice(
+      materialPrice,
+      uk.job.materialPriceLabel,
+    );
     if (material.error) {
       errors.materialPrice = material.error;
     }
@@ -218,7 +220,7 @@ export function JobForm({ onSubmit, categories, onCreated }: JobFormProps) {
       } else {
         setFeedback({
           type: "success",
-          message: "Запис успішно збережено",
+          message: uk.job.saveSuccess,
         });
       }
     } catch (err) {
@@ -229,7 +231,7 @@ export function JobForm({ onSubmit, categories, onCreated }: JobFormProps) {
       const message =
         err instanceof Error && err.message
           ? err.message
-          : "Не вдалося зберегти запис. Спробуйте ще раз.";
+          : uk.job.createFailed;
       setFeedback({ type: "error", message });
     } finally {
       setIsPending(false);
@@ -260,14 +262,15 @@ export function JobForm({ onSubmit, categories, onCreated }: JobFormProps) {
   return (
     <section className={styles.panel} aria-labelledby="job-form-title">
       <h2 id="job-form-title" className={styles.title}>
-        Новий запис
+        {uk.job.newTitle}
       </h2>
 
       <form className={styles.form} onSubmit={handleSubmit} noValidate>
         <div className={styles.grid}>
           <div className={styles.field}>
             <label className={styles.label} htmlFor={fieldId("phone")}>
-              Телефон <span className={styles.required}>*</span>
+              {uk.job.phone}{" "}
+              <span className={styles.required}>{uk.common.requiredMark}</span>
             </label>
             <input
               id={fieldId("phone")}
@@ -290,7 +293,7 @@ export function JobForm({ onSubmit, categories, onCreated }: JobFormProps) {
 
           <div className={styles.field}>
             <label className={styles.label} htmlFor={fieldId("name")}>
-              Ім&apos;я клієнта
+              {uk.job.clientName}
             </label>
             <input
               id={fieldId("name")}
@@ -298,7 +301,7 @@ export function JobForm({ onSubmit, categories, onCreated }: JobFormProps) {
               name="name"
               type="text"
               autoComplete="name"
-              placeholder="Опційно"
+              placeholder={uk.common.optional}
               value={name}
               onChange={(e) => updateField(setName, e.target.value)}
               disabled={isPending}
@@ -312,7 +315,8 @@ export function JobForm({ onSubmit, categories, onCreated }: JobFormProps) {
 
           <div className={styles.field}>
             <label className={styles.label} htmlFor={fieldId("car")}>
-              Авто <span className={styles.required}>*</span>
+              {uk.job.car}{" "}
+              <span className={styles.required}>{uk.common.requiredMark}</span>
             </label>
             <input
               id={fieldId("car")}
@@ -333,7 +337,8 @@ export function JobForm({ onSubmit, categories, onCreated }: JobFormProps) {
 
           <div className={styles.field}>
             <label className={styles.label} htmlFor={fieldId("category")}>
-              Категорія робіт <span className={styles.required}>*</span>
+              {uk.job.category}{" "}
+              <span className={styles.required}>{uk.common.requiredMark}</span>
             </label>
             <input
               id={fieldId("category")}
@@ -362,7 +367,8 @@ export function JobForm({ onSubmit, categories, onCreated }: JobFormProps) {
 
           <div className={`${styles.field} ${styles.fieldFull}`}>
             <label className={styles.label} htmlFor={fieldId("scheduledAt")}>
-              Дата та час <span className={styles.required}>*</span>
+              {uk.job.scheduledAt}{" "}
+              <span className={styles.required}>{uk.common.requiredMark}</span>
             </label>
             <input
               id={fieldId("scheduledAt")}
@@ -384,7 +390,8 @@ export function JobForm({ onSubmit, categories, onCreated }: JobFormProps) {
 
           <div className={styles.field}>
             <label className={styles.label} htmlFor={fieldId("workPrice")}>
-              Ціна роботи, ₴ <span className={styles.required}>*</span>
+              {uk.job.workPrice}{" "}
+              <span className={styles.required}>{uk.common.requiredMark}</span>
             </label>
             <input
               id={fieldId("workPrice")}
@@ -410,7 +417,8 @@ export function JobForm({ onSubmit, categories, onCreated }: JobFormProps) {
 
           <div className={styles.field}>
             <label className={styles.label} htmlFor={fieldId("materialPrice")}>
-              Ціна матеріалів, ₴ <span className={styles.required}>*</span>
+              {uk.job.materialPrice}{" "}
+              <span className={styles.required}>{uk.common.requiredMark}</span>
             </label>
             <input
               id={fieldId("materialPrice")}
@@ -451,7 +459,7 @@ export function JobForm({ onSubmit, categories, onCreated }: JobFormProps) {
 
         <div className={styles.actions}>
           <button className={styles.submit} type="submit" disabled={isPending}>
-            {isPending ? "Збереження…" : "Зберегти запис"}
+            {isPending ? uk.common.saving : uk.job.saveCreate}
           </button>
         </div>
       </form>

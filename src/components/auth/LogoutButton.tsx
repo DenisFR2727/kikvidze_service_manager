@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LOGIN_PATH, logout } from "@/lib/auth";
+import { uk } from "@/lib/i18n/uk";
 import styles from "./LogoutButton.module.scss";
 
 export function LogoutButton() {
@@ -29,7 +30,7 @@ export function LogoutButton() {
       onClick={() => void handleLogout()}
       disabled={isPending}
     >
-      {isPending ? "Вихід…" : "Вийти"}
+      {isPending ? uk.auth.loggingOut : uk.auth.logout}
     </button>
   );
 }

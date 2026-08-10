@@ -2,11 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import {
-  JOB_STATUS_LABELS,
-  type Job,
-  type JobStatus,
-} from "@/lib/types";
+import { JOB_STATUS_LABELS, uk } from "@/lib/i18n/uk";
+import type { Job, JobStatus } from "@/lib/types";
 import styles from "./JobCalendar.module.scss";
 
 export type JobCalendarProps = {
@@ -153,7 +150,7 @@ export function JobCalendar({ jobs }: JobCalendarProps) {
     <section className={styles.panel} aria-labelledby="job-calendar-title">
       <div className={styles.header}>
         <h2 id="job-calendar-title" className={styles.title}>
-          Календар
+          {uk.job.calendarTitle}
         </h2>
 
         <div className={styles.nav}>
@@ -161,7 +158,7 @@ export function JobCalendar({ jobs }: JobCalendarProps) {
             type="button"
             className={styles.navButton}
             onClick={goPrevWeek}
-            aria-label="Попередній тиждень"
+            aria-label={uk.job.prevWeek}
           >
             ←
           </button>
@@ -172,14 +169,14 @@ export function JobCalendar({ jobs }: JobCalendarProps) {
               className={styles.todayButton}
               onClick={goThisWeek}
             >
-              Сьогодні
+              {uk.job.today}
             </button>
           </div>
           <button
             type="button"
             className={styles.navButton}
             onClick={goNextWeek}
-            aria-label="Наступний тиждень"
+            aria-label={uk.job.nextWeek}
           >
             →
           </button>
@@ -188,13 +185,13 @@ export function JobCalendar({ jobs }: JobCalendarProps) {
 
       {jobs.length === 0 ? (
         <p className={styles.empty} role="status">
-          Немає записів. Додайте першу роботу у формі вище.
+          {uk.job.emptyList}
         </p>
       ) : null}
 
       {jobs.length > 0 && jobsInWeek === 0 ? (
         <p className={styles.empty} role="status">
-          Немає робіт на цей тиждень.
+          {uk.job.emptyWeek}
         </p>
       ) : null}
 

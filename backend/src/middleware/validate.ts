@@ -28,6 +28,28 @@ function validationMessage(error: z.ZodError, fields: Record<string, string>): s
 }
 
 /**
+ * Express 5 exposes `req.query` / `req.params` as getter-only; assign via
+ * `defineProperty` so Zod-coerced values (e.g. dates) are readable by handlers.
+ */
+function replaceRequestTarget(
+  req: Parameters<RequestHandler>[0],
+  target: RequestTarget,
+  value: unknown,
+): void {
+  if (target === "body") {
+    req.body = value;
+    return;
+  }
+
+  Object.defineProperty(req, target, {
+    value,
+    writable: true,
+    enumerable: true,
+    configurable: true,
+  });
+}
+
+/**
  * Validate `req[target]` with a Zod schema; replace with parsed data on success.
  * On failure, forwards `AppError(VALIDATION_ERROR)` to the error handler.
  */
@@ -48,8 +70,7 @@ export function validate(
       return;
     }
 
-    // Parsed/coerced values replace the raw target (query/params may change types).
-    (req as Record<RequestTarget, unknown>)[target] = result.data;
+    replaceRequestTarget(req, target, result.data);
     next();
   };
 }

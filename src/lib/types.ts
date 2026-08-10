@@ -11,13 +11,8 @@ export const JOB_STATUSES = [
 
 export type JobStatus = (typeof JOB_STATUSES)[number];
 
-/** Ukrainian labels for status chips / filters (FR / data-model). */
-export const JOB_STATUS_LABELS: Record<JobStatus, string> = {
-  queued: "В черзі",
-  in_progress: "В процесі",
-  done: "Робота виконана",
-  cancelled: "Відміна роботи",
-};
+/** @deprecated Import from `@/lib/i18n/uk` — kept for existing imports. */
+export { JOB_STATUS_LABELS } from "@/lib/i18n/uk";
 
 export type Admin = {
   login: string;

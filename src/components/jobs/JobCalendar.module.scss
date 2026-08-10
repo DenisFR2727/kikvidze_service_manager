@@ -1,9 +1,16 @@
 .panel {
-  padding: var(--space-5);
+  padding: var(--space-4);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-surface);
   box-shadow: var(--shadow-sm);
+  overflow-x: auto;
+}
+
+@media (min-width: 640px) {
+  .panel {
+    padding: var(--space-5);
+  }
 }
 
 .header {
@@ -173,6 +180,12 @@
   background: var(--color-status-cancelled-bg);
 }
 
+@media (min-width: 640px) and (max-width: 899px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (min-width: 900px) {
   .header {
     flex-direction: row;
@@ -189,6 +202,7 @@
   .grid {
     grid-template-columns: repeat(7, minmax(0, 1fr));
     gap: var(--space-2);
+    min-width: 42rem;
   }
 
   .day {

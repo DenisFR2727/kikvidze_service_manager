@@ -1,8 +1,8 @@
 "use client";
 
+import { JOB_STATUS_LABELS, uk } from "@/lib/i18n/uk";
 import {
   JOB_STATUSES,
-  JOB_STATUS_LABELS,
   type JobStatus,
   type JobsQuery,
 } from "@/lib/types";
@@ -73,7 +73,7 @@ export function JobFilters({
     <section className={styles.panel} aria-labelledby="job-filters-title">
       <div className={styles.header}>
         <h2 id="job-filters-title" className={styles.title}>
-          Фільтри
+          {uk.job.filtersTitle}
         </h2>
         <button
           type="button"
@@ -81,14 +81,14 @@ export function JobFilters({
           onClick={onReset}
           disabled={disabled || !active}
         >
-          Скинути
+          {uk.common.reset}
         </button>
       </div>
 
       <div className={styles.grid}>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="job-filter-status">
-            Статус
+            {uk.job.status}
           </label>
           <select
             id="job-filter-status"
@@ -99,7 +99,7 @@ export function JobFilters({
               patch({ status: e.target.value as JobStatus | "" })
             }
           >
-            <option value="">Усі статуси</option>
+            <option value="">{uk.job.allStatuses}</option>
             {JOB_STATUSES.map((status) => (
               <option key={status} value={status}>
                 {JOB_STATUS_LABELS[status]}
@@ -110,7 +110,7 @@ export function JobFilters({
 
         <div className={styles.field}>
           <label className={styles.label} htmlFor="job-filter-category">
-            Категорія
+            {uk.job.categoryFilter}
           </label>
           <select
             id="job-filter-category"
@@ -119,7 +119,7 @@ export function JobFilters({
             disabled={disabled}
             onChange={(e) => patch({ category: e.target.value })}
           >
-            <option value="">Усі категорії</option>
+            <option value="">{uk.job.allCategories}</option>
             {categories.map((category) => (
               <option key={category} value={category}>
                 {category}
@@ -130,7 +130,7 @@ export function JobFilters({
 
         <div className={styles.field}>
           <label className={styles.label} htmlFor="job-filter-from">
-            Дата від
+            {uk.job.dateFrom}
           </label>
           <input
             id="job-filter-from"
@@ -144,7 +144,7 @@ export function JobFilters({
 
         <div className={styles.field}>
           <label className={styles.label} htmlFor="job-filter-to">
-            Дата до
+            {uk.job.dateTo}
           </label>
           <input
             id="job-filter-to"

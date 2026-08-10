@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useState } from "react";
 import { JobStatusSelect } from "@/components/jobs/JobStatusSelect";
-import { JOB_STATUS_LABELS, type Job, type JobStatus } from "@/lib/types";
+import { JOB_STATUS_LABELS, uk } from "@/lib/i18n/uk";
+import type { Job, JobStatus } from "@/lib/types";
 import styles from "./JobList.module.scss";
 
 export type JobListProps = {
@@ -50,7 +51,9 @@ export function JobList({ jobs, onStatusChange }: JobListProps) {
       setRowError({
         jobId,
         message:
-          err instanceof Error ? err.message : "Не вдалося змінити статус",
+          err instanceof Error
+            ? err.message
+            : uk.job.statusChangeFailed,
       });
     } finally {
       setPendingId(null);
@@ -60,12 +63,12 @@ export function JobList({ jobs, onStatusChange }: JobListProps) {
   return (
     <section className={styles.panel} aria-labelledby="job-list-title">
       <h2 id="job-list-title" className={styles.title}>
-        Список робіт
+        {uk.job.listTitle}
       </h2>
 
       {jobs.length === 0 ? (
         <p className={styles.empty} role="status">
-          Немає записів. Додайте першу роботу у формі вище.
+          {uk.job.emptyList}
         </p>
       ) : (
         <ul className={styles.list}>
@@ -81,7 +84,8 @@ export function JobList({ jobs, onStatusChange }: JobListProps) {
                   <div className={styles.meta}>
                     <span className={styles.category}>{job.category}</span>
                     <span className={styles.prices}>
-                      Робота {formatPrice(job.workPrice)} · Матеріали{" "}
+                      {uk.common.workPriceShort} {formatPrice(job.workPrice)} ·{" "}
+                      {uk.common.materialPriceShort}{" "}
                       {formatPrice(job.materialPrice)}
                     </span>
                   </div>
@@ -93,7 +97,7 @@ export function JobList({ jobs, onStatusChange }: JobListProps) {
                       key={`${job.id}-${job.status}`}
                       value={job.status}
                       disabled={pendingId === job.id}
-                      aria-label={`Статус: ${formatClient(job)}`}
+                      aria-label={`${uk.job.status}: ${formatClient(job)}`}
                       onChange={(status) => handleStatusChange(job.id, status)}
                     />
                   ) : (

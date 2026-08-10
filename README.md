@@ -11,6 +11,8 @@
 
 Потрібні **два** процеси: API на `:4000` і UI на `:3000`.
 
+Див. також повний сценарій валідації: [`specs/001-client-job-booking/quickstart.md`](./specs/001-client-job-booking/quickstart.md).
+
 ### 1. Env
 
 ```bash
@@ -27,6 +29,23 @@ cd ..
 
 Переконайся, що MongoDB запущена і `MONGODB_URI` у `backend/.env` коректний.
 
+**`backend/.env`** (приклад з quickstart):
+
+```env
+PORT=4000
+MONGODB_URI=mongodb://127.0.0.1:27017/kikvidze_service_manager
+ADMIN_LOGIN=admin
+ADMIN_PASSWORD=change-me
+SESSION_SECRET=dev-secret-min-32-chars!!!!!!!!!!!!
+CORS_ORIGIN=http://localhost:3000
+```
+
+**Root `.env.local`**:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:4000
+```
+
 ### 2. Install
 
 ```bash
@@ -38,7 +57,7 @@ cd ..
 
 ### 3. Run
 
-**Термінал A — API:**
+**Термінал A — API** (prefer `npm run dev` so source changes reload; `npm start` needs a fresh `npm run build` first):
 
 ```bash
 cd backend
@@ -53,6 +72,8 @@ npm run dev
 
 - UI: [http://localhost:3000](http://localhost:3000)
 - API: [http://localhost:4000](http://localhost:4000)
+
+Backend details: [`backend/README.md`](./backend/README.md).
 
 ## Project structure
 

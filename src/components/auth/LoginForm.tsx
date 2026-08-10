@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { uk } from "@/lib/i18n/uk";
 import type { LoginRequest } from "@/lib/types";
 import styles from "./LoginForm.module.scss";
 
@@ -26,10 +27,10 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
     const nextErrors: { login?: string; password?: string } = {};
 
     if (!nextLogin) {
-      nextErrors.login = "Вкажіть логін";
+      nextErrors.login = uk.auth.loginRequired;
     }
     if (!password) {
-      nextErrors.password = "Вкажіть пароль";
+      nextErrors.password = uk.auth.passwordRequired;
     }
 
     setFieldErrors(nextErrors);
@@ -46,7 +47,7 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
       const message =
         err instanceof Error && err.message
           ? err.message
-          : "Не вдалося увійти. Спробуйте ще раз.";
+          : uk.auth.loginFailed;
       setFormError(message);
     } finally {
       setIsPending(false);
@@ -57,7 +58,7 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
     <form className={styles.form} onSubmit={handleSubmit} noValidate>
       <div className={styles.field}>
         <label className={styles.label} htmlFor="login">
-          Логін
+          {uk.auth.login}
         </label>
         <input
           id="login"
@@ -80,7 +81,7 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
 
       <div className={styles.field}>
         <label className={styles.label} htmlFor="password">
-          Пароль
+          {uk.auth.password}
         </label>
         <input
           id="password"
@@ -108,7 +109,7 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
       ) : null}
 
       <button className={styles.submit} type="submit" disabled={isPending}>
-        {isPending ? "Вхід…" : "Увійти"}
+        {isPending ? uk.auth.submitting : uk.auth.submit}
       </button>
     </form>
   );

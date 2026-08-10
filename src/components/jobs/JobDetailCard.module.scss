@@ -1,9 +1,15 @@
 .panel {
-  padding: var(--space-5);
+  padding: var(--space-4);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-surface);
   box-shadow: var(--shadow-sm);
+}
+
+@media (min-width: 640px) {
+  .panel {
+    padding: var(--space-5);
+  }
 }
 
 .header {
@@ -126,11 +132,20 @@
 
 .actions {
   display: flex;
+  flex-direction: column;
   flex-wrap: wrap;
   gap: var(--space-3);
 }
 
+@media (min-width: 480px) {
+  .actions {
+    flex-direction: row;
+  }
+}
+
 .save {
+  width: 100%;
+  min-height: 2.75rem;
   padding: var(--space-3) var(--space-5);
   border: none;
   border-radius: var(--radius-md);
@@ -139,6 +154,12 @@
   font-weight: var(--weight-semibold);
   cursor: pointer;
   transition: background-color 0.15s ease;
+}
+
+@media (min-width: 480px) {
+  .save {
+    width: auto;
+  }
 }
 
 .save:hover:not(:disabled) {
@@ -151,6 +172,8 @@
 }
 
 .delete {
+  width: 100%;
+  min-height: 2.75rem;
   padding: var(--space-3) var(--space-5);
   border: 1px solid var(--color-danger);
   border-radius: var(--radius-md);
@@ -161,6 +184,12 @@
   transition:
     background-color 0.15s ease,
     opacity 0.15s ease;
+}
+
+@media (min-width: 480px) {
+  .delete {
+    width: auto;
+  }
 }
 
 .delete:hover:not(:disabled) {

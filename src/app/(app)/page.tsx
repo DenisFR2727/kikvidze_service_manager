@@ -12,6 +12,7 @@ import { JobForm } from "@/components/jobs/JobForm";
 import { JobList } from "@/components/jobs/JobList";
 import { JobSearch } from "@/components/jobs/JobSearch";
 import { ApiError, apiClient } from "@/lib/api-client";
+import { uk } from "@/lib/i18n/uk";
 import type {
   CreateJobInput,
   Job,
@@ -104,7 +105,7 @@ export default function HomePage() {
           setLoadError(
             err instanceof ApiError
               ? err.message
-              : "Не вдалося завантажити роботи",
+              : uk.app.loadJobsError,
           );
         }
       } finally {
@@ -222,11 +223,11 @@ export default function HomePage() {
         disabled={isLoading}
       />
 
-      <section className="home__board" aria-label="Огляд робіт">
+      <section className="home__board" aria-label={uk.app.jobsOverview}>
         <div
           className="home__switcher"
           role="tablist"
-          aria-label="Вигляд робіт"
+          aria-label={uk.app.viewSwitcher}
         >
           <button
             type="button"
@@ -237,7 +238,7 @@ export default function HomePage() {
             className={`home__switcher-btn${view === "list" ? " is-active" : ""}`}
             onClick={() => setView("list")}
           >
-            Список
+            {uk.app.listView}
           </button>
           <button
             type="button"
@@ -248,7 +249,7 @@ export default function HomePage() {
             className={`home__switcher-btn${view === "calendar" ? " is-active" : ""}`}
             onClick={() => setView("calendar")}
           >
-            Календар
+            {uk.app.calendarView}
           </button>
         </div>
 
@@ -261,7 +262,7 @@ export default function HomePage() {
         >
           {isLoading ? (
             <p className="home__status" aria-busy="true" aria-live="polite">
-              Завантаження робіт…
+              {uk.app.loadingJobs}
             </p>
           ) : null}
 

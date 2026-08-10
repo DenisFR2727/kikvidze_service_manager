@@ -1,10 +1,7 @@
 "use client";
 
-import {
-  JOB_STATUSES,
-  JOB_STATUS_LABELS,
-  type JobStatus,
-} from "@/lib/types";
+import { JOB_STATUS_LABELS, uk } from "@/lib/i18n/uk";
+import { JOB_STATUSES, type JobStatus } from "@/lib/types";
 import styles from "./JobStatusSelect.module.scss";
 
 export type JobStatusSelectProps = {
@@ -28,7 +25,7 @@ export function JobStatusSelect({
   onChange,
   disabled = false,
   id,
-  "aria-label": ariaLabel = "Статус роботи",
+  "aria-label": ariaLabel = uk.job.statusAria,
 }: JobStatusSelectProps) {
   async function handleChange(event: React.ChangeEvent<HTMLSelectElement>) {
     const next = event.target.value as JobStatus;

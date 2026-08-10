@@ -181,11 +181,11 @@
 
 **Purpose**: UX consistency, responsive layout, docs, quickstart validation
 
-- [ ] T048 [P] Responsive polish for home panels (form/filters/list/calendar) in `src/components/jobs/*.module.scss` and `src/app/globals.scss`
-- [ ] T049 [P] Ukrainian UI labels for statuses/buttons aligned with spec in `src/lib/i18n/uk.ts` (or constants file)
-- [ ] T050 Align root `README.md` + `backend/README.md` with quickstart start commands
-- [ ] T051 Run manual validation scenarios 1–6 from `specs/001-client-job-booking/quickstart.md` and fix blockers
-- [ ] T052 [P] Remove obsolete default Next marketing leftover assets/styles if unused under `src/app/` and `public/`
+- [x] T048 [P] Responsive polish for home panels (form/filters/list/calendar) in `src/components/jobs/*.module.scss` and `src/app/globals.scss`
+- [x] T049 [P] Ukrainian UI labels for statuses/buttons aligned with spec in `src/lib/i18n/uk.ts` (or constants file)
+- [x] T050 Align root `README.md` + `backend/README.md` with quickstart start commands
+- [x] T051 Run manual validation scenarios 1–6 from `specs/001-client-job-booking/quickstart.md` and fix blockers
+- [x] T052 [P] Remove obsolete default Next marketing leftover assets/styles if unused under `src/app/` and `public/`
 
 ---
 

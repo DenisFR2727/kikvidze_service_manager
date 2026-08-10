@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { JobStatusSelect } from "@/components/jobs/JobStatusSelect";
 import { ApiError, apiClient } from "@/lib/api-client";
+import { uk } from "@/lib/i18n/uk";
 import type {
   Job,
   JobStatus,
@@ -58,15 +59,15 @@ function parseNonNegativePrice(
 ): { value?: number; error?: string } {
   const trimmed = raw.trim();
   if (!trimmed) {
-    return { error: `Вкажіть ${label}` };
+    return { error: uk.job.priceRequired(label) };
   }
 
   const value = Number(trimmed.replace(",", "."));
   if (!Number.isFinite(value)) {
-    return { error: `${label} має бути числом` };
+    return { error: uk.job.priceNotNumber(label) };
   }
   if (value < 0) {
-    return { error: `${label} не може бути від’ємною` };
+    return { error: uk.job.priceNegative(label) };
   }
 
   return { value };
@@ -187,21 +188,21 @@ export function JobDetailCard({ job, onSaved, onDeleted }: JobDetailCardProps) {
     const trimmedName = name.trim();
 
     if (!nextPhone) {
-      errors.phone = "Вкажіть телефон клієнта";
+      errors.phone = uk.job.phoneRequired;
     }
     if (!nextCar) {
-      errors.car = "Вкажіть авто";
+      errors.car = uk.job.carRequired;
     }
     if (!nextCategory) {
-      errors.category = "Вкажіть категорію робіт";
+      errors.category = uk.job.categoryRequired;
     }
 
     if (!scheduledAtLocal) {
-      errors.scheduledAt = "Вкажіть заплановану дату та час";
+      errors.scheduledAt = uk.job.scheduledRequiredDetail;
     } else {
       const scheduledDate = new Date(scheduledAtLocal);
       if (Number.isNaN(scheduledDate.getTime())) {
-        errors.scheduledAt = "Некоректна дата або час";
+        errors.scheduledAt = uk.job.scheduledInvalid;
       }
     }
 
@@ -209,18 +210,21 @@ export function JobDetailCard({ job, onSaved, onDeleted }: JobDetailCardProps) {
     if (completedAtLocal) {
       const completedDate = new Date(completedAtLocal);
       if (Number.isNaN(completedDate.getTime())) {
-        errors.completedAt = "Некоректна дата або час виконання";
+        errors.completedAt = uk.job.completedInvalid;
       } else {
         completedAt = completedDate.toISOString();
       }
     }
 
-    const work = parseNonNegativePrice(workPrice, "ціну роботи");
+    const work = parseNonNegativePrice(workPrice, uk.job.workPriceLabel);
     if (work.error) {
       errors.workPrice = work.error;
     }
 
-    const material = parseNonNegativePrice(materialPrice, "ціну матеріалів");
+    const material = parseNonNegativePrice(
+      materialPrice,
+      uk.job.materialPriceLabel,
+    );
     if (material.error) {
       errors.materialPrice = material.error;
     }
@@ -265,7 +269,7 @@ export function JobDetailCard({ job, onSaved, onDeleted }: JobDetailCardProps) {
       onSaved(updated);
       setFeedback({
         type: "success",
-        message: "Зміни збережено",
+        message: uk.job.editSuccess,
       });
       // Ensure home list/calendar refetch after navigating back (T047).
       try {
@@ -282,7 +286,7 @@ export function JobDetailCard({ job, onSaved, onDeleted }: JobDetailCardProps) {
         message:
           err instanceof Error && err.message
             ? err.message
-            : "Не вдалося зберегти зміни",
+            : uk.job.updateFailed,
       });
     } finally {
       setIsSaving(false);
@@ -318,7 +322,7 @@ export function JobDetailCard({ job, onSaved, onDeleted }: JobDetailCardProps) {
         message:
           err instanceof Error && err.message
             ? err.message
-            : "Не вдалося видалити роботу",
+            : uk.job.deleteFailed,
       });
       deleteDialogRef.current?.close();
     } finally {
@@ -333,10 +337,10 @@ export function JobDetailCard({ job, onSaved, onDeleted }: JobDetailCardProps) {
       <div className={styles.header}>
         <div>
           <p className={styles.breadcrumb}>
-            <Link href="/">← До списку</Link>
+            <Link href="/">{uk.common.backToList}</Link>
           </p>
           <h1 id="job-detail-title" className={styles.title}>
-            Картка роботи
+            {uk.job.detailTitle}
           </h1>
         </div>
       </div>
@@ -345,7 +349,8 @@ export function JobDetailCard({ job, onSaved, onDeleted }: JobDetailCardProps) {
         <div className={styles.grid}>
           <div className={styles.field}>
             <label className={styles.label} htmlFor={fieldId("phone")}>
-              Телефон <span className={styles.required}>*</span>
+              {uk.job.phone}{" "}
+              <span className={styles.required}>{uk.common.requiredMark}</span>
             </label>
             <input
               id={fieldId("phone")}
@@ -366,7 +371,7 @@ export function JobDetailCard({ job, onSaved, onDeleted }: JobDetailCardProps) {
 
           <div className={styles.field}>
             <label className={styles.label} htmlFor={fieldId("name")}>
-              Ім&apos;я клієнта
+              {uk.job.clientName}
             </label>
             <input
               id={fieldId("name")}
@@ -386,7 +391,8 @@ export function JobDetailCard({ job, onSaved, onDeleted }: JobDetailCardProps) {
 
           <div className={styles.field}>
             <label className={styles.label} htmlFor={fieldId("car")}>
-              Авто <span className={styles.required}>*</span>
+              {uk.job.car}{" "}
+              <span className={styles.required}>{uk.common.requiredMark}</span>
             </label>
             <input
               id={fieldId("car")}
@@ -405,7 +411,8 @@ export function JobDetailCard({ job, onSaved, onDeleted }: JobDetailCardProps) {
 
           <div className={styles.field}>
             <label className={styles.label} htmlFor={fieldId("category")}>
-              Категорія робіт <span className={styles.required}>*</span>
+              {uk.job.category}{" "}
+              <span className={styles.required}>{uk.common.requiredMark}</span>
             </label>
             <input
               id={fieldId("category")}
@@ -432,7 +439,8 @@ export function JobDetailCard({ job, onSaved, onDeleted }: JobDetailCardProps) {
 
           <div className={styles.field}>
             <label className={styles.label} htmlFor={fieldId("scheduledAt")}>
-              Заплановано <span className={styles.required}>*</span>
+              {uk.job.scheduledAtDetail}{" "}
+              <span className={styles.required}>{uk.common.requiredMark}</span>
             </label>
             <input
               id={fieldId("scheduledAt")}
@@ -455,7 +463,7 @@ export function JobDetailCard({ job, onSaved, onDeleted }: JobDetailCardProps) {
 
           <div className={styles.field}>
             <label className={styles.label} htmlFor={fieldId("completedAt")}>
-              Виконано
+              {uk.job.completedAt}
             </label>
             <input
               id={fieldId("completedAt")}
@@ -478,7 +486,8 @@ export function JobDetailCard({ job, onSaved, onDeleted }: JobDetailCardProps) {
 
           <div className={styles.field}>
             <label className={styles.label} htmlFor={fieldId("workPrice")}>
-              Ціна роботи, ₴ <span className={styles.required}>*</span>
+              {uk.job.workPrice}{" "}
+              <span className={styles.required}>{uk.common.requiredMark}</span>
             </label>
             <input
               id={fieldId("workPrice")}
@@ -502,7 +511,8 @@ export function JobDetailCard({ job, onSaved, onDeleted }: JobDetailCardProps) {
 
           <div className={styles.field}>
             <label className={styles.label} htmlFor={fieldId("materialPrice")}>
-              Ціна матеріалів, ₴ <span className={styles.required}>*</span>
+              {uk.job.materialPrice}{" "}
+              <span className={styles.required}>{uk.common.requiredMark}</span>
             </label>
             <input
               id={fieldId("materialPrice")}
@@ -526,7 +536,7 @@ export function JobDetailCard({ job, onSaved, onDeleted }: JobDetailCardProps) {
 
           <div className={`${styles.field} ${styles.fieldFull}`}>
             <label className={styles.label} htmlFor={fieldId("status")}>
-              Статус
+              {uk.job.status}
             </label>
             <JobStatusSelect
               id={fieldId("status")}
@@ -553,7 +563,7 @@ export function JobDetailCard({ job, onSaved, onDeleted }: JobDetailCardProps) {
 
         <div className={styles.actions}>
           <button className={styles.save} type="submit" disabled={busy}>
-            {isSaving ? "Збереження…" : "Зберегти зміни"}
+            {isSaving ? uk.common.saving : uk.job.saveEdit}
           </button>
           <button
             className={styles.delete}
@@ -561,7 +571,7 @@ export function JobDetailCard({ job, onSaved, onDeleted }: JobDetailCardProps) {
             disabled={busy}
             onClick={openDeleteDialog}
           >
-            Видалити
+            {uk.common.delete}
           </button>
         </div>
       </form>
@@ -578,11 +588,9 @@ export function JobDetailCard({ job, onSaved, onDeleted }: JobDetailCardProps) {
       >
         <div className={styles.dialogBody}>
           <h2 id="job-delete-title" className={styles.dialogTitle}>
-            Видалити роботу?
+            {uk.job.deleteConfirmTitle}
           </h2>
-          <p className={styles.dialogText}>
-            Запис буде видалено остаточно. Клієнт залишиться в системі.
-          </p>
+          <p className={styles.dialogText}>{uk.job.deleteConfirmText}</p>
           <div className={styles.dialogActions}>
             <button
               type="button"
@@ -590,7 +598,7 @@ export function JobDetailCard({ job, onSaved, onDeleted }: JobDetailCardProps) {
               disabled={isDeleting}
               onClick={closeDeleteDialog}
             >
-              Скасувати
+              {uk.common.cancel}
             </button>
             <button
               type="button"
@@ -600,7 +608,7 @@ export function JobDetailCard({ job, onSaved, onDeleted }: JobDetailCardProps) {
                 void confirmDelete();
               }}
             >
-              {isDeleting ? "Видалення…" : "Так, видалити"}
+              {isDeleting ? uk.common.deleting : uk.job.deleteConfirm}
             </button>
           </div>
         </div>

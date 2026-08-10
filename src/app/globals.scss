@@ -60,18 +60,23 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-4);
+  gap: var(--space-3);
   min-height: var(--header-height);
   padding-inline: var(--layout-gutter);
   border-bottom: 1px solid var(--color-border);
   background: var(--color-surface);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .app-shell__brand {
-  font-size: var(--text-lg);
+  font-size: var(--text-md);
   font-weight: var(--weight-semibold);
   letter-spacing: -0.02em;
   color: var(--color-fg);
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 .app-shell__main {
@@ -79,7 +84,17 @@ textarea {
   width: 100%;
   max-width: var(--layout-max-width);
   margin-inline: auto;
-  padding: var(--space-6) var(--layout-gutter);
+  padding: var(--space-4) var(--layout-gutter);
+}
+
+@media (min-width: 640px) {
+  .app-shell__brand {
+    font-size: var(--text-lg);
+  }
+
+  .app-shell__main {
+    padding: var(--space-6) var(--layout-gutter);
+  }
 }
 
 .auth-shell {
@@ -118,7 +133,13 @@ textarea {
 .home {
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
+  gap: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .home {
+    gap: var(--space-6);
+  }
 }
 
 .home__board {
@@ -128,8 +149,9 @@ textarea {
 }
 
 .home__switcher {
-  display: inline-flex;
-  align-self: flex-start;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
   padding: var(--space-1);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -137,7 +159,16 @@ textarea {
   gap: var(--space-1);
 }
 
+@media (min-width: 480px) {
+  .home__switcher {
+    display: inline-flex;
+    width: auto;
+    align-self: flex-start;
+  }
+}
+
 .home__switcher-btn {
+  min-height: 2.5rem;
   padding: var(--space-2) var(--space-4);
   border: none;
   border-radius: var(--radius-sm);

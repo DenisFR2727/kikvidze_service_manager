@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import { uk } from "@/lib/i18n/uk";
 import styles from "./JobSearch.module.scss";
 
 const DEFAULT_DEBOUNCE_MS = 300;
@@ -51,7 +52,7 @@ export function JobSearch({
   return (
     <section className={styles.panel} aria-labelledby={`${inputId}-label`}>
       <label id={`${inputId}-label`} className={styles.label} htmlFor={inputId}>
-        Пошук
+        {uk.job.searchTitle}
       </label>
       <div className={styles.row}>
         <input
@@ -59,7 +60,7 @@ export function JobSearch({
           className={styles.input}
           type="search"
           name="job-search"
-          placeholder="Телефон або авто…"
+          placeholder={uk.job.searchPlaceholder}
           autoComplete="off"
           spellCheck={false}
           value={draft}
@@ -73,14 +74,14 @@ export function JobSearch({
             className={styles.clear}
             onClick={handleClear}
             disabled={disabled}
-            aria-label="Очистити пошук"
+            aria-label={uk.job.searchClearAria}
           >
-            Очистити
+            {uk.common.clear}
           </button>
         ) : null}
       </div>
       <p id={`${inputId}-hint`} className={styles.hint}>
-        Частковий збіг за телефоном клієнта або назвою авто
+        {uk.job.searchHint}
       </p>
     </section>
   );

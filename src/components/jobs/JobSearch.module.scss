@@ -1,9 +1,15 @@
 .panel {
-  padding: var(--space-5);
+  padding: var(--space-4);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-surface);
   box-shadow: var(--shadow-sm);
+}
+
+@media (min-width: 640px) {
+  .panel {
+    padding: var(--space-5);
+  }
 }
 
 .label {
@@ -17,13 +23,15 @@
 
 .row {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-3);
   align-items: stretch;
 }
 
 .input {
-  flex: 1;
+  flex: 1 1 12rem;
   min-width: 0;
+  min-height: 2.75rem;
   padding: var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);

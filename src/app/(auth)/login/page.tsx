@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { ApiError } from "@/lib/api-client";
 import { APP_HOME_PATH, login } from "@/lib/auth";
+import { uk } from "@/lib/i18n/uk";
 import type { LoginRequest } from "@/lib/types";
 
 export default function LoginPage() {
@@ -14,10 +15,10 @@ export default function LoginPage() {
       await login(values);
     } catch (err) {
       if (err instanceof ApiError && err.isUnauthorized) {
-        throw new Error("Невірний логін або пароль");
+        throw new Error(uk.auth.invalidCredentials);
       }
       if (err instanceof ApiError) {
-        throw new Error(err.message || "Не вдалося увійти. Спробуйте ще раз.");
+        throw new Error(err.message || uk.auth.loginFailed);
       }
       throw err;
     }
@@ -28,7 +29,7 @@ export default function LoginPage() {
 
   return (
     <div className="login">
-      <h1 className="login__title">Вхід</h1>
+      <h1 className="login__title">{uk.auth.title}</h1>
       <LoginForm onSubmit={handleLogin} />
     </div>
   );

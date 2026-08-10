@@ -67,9 +67,16 @@
 
   /* Layout */
   --layout-max-width: 72rem;
-  --layout-gutter: var(--space-4);
-  --header-height: 3.5rem;
+  --layout-gutter: var(--space-3);
+  --header-height: 3.25rem;
   --auth-form-max-width: 22rem;
+}
+
+@media (min-width: 480px) {
+  :root {
+    --layout-gutter: var(--space-4);
+    --header-height: 3.5rem;
+  }
 }
 
 @media (min-width: 768px) {

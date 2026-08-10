@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { JOB_STATUS_LABELS, uk } from "@/lib/i18n/uk";
 import type { Job, JobStatus } from "@/lib/types";
+import { addDays, buildWeekDays, startOfWeekMonday } from "./jobCalendarWeek";
 import styles from "./JobCalendar.module.scss";
 
 export type JobCalendarProps = {
@@ -16,41 +17,6 @@ const STATUS_CLASS: Record<JobStatus, string> = {
   done: styles.statusDone,
   cancelled: styles.statusCancelled,
 };
-
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-type DayColumn = {
-  key: string;
-  date: Date;
-  jobs: Job[];
-  isToday: boolean;
-};
-
-function startOfLocalDay(date: Date): Date {
-  const next = new Date(date);
-  next.setHours(0, 0, 0, 0);
-  return next;
-}
-
-/** Monday 00:00 local for the week that contains `date`. */
-function startOfWeekMonday(date: Date): Date {
-  const day = startOfLocalDay(date);
-  const weekday = day.getDay(); // 0 Sun … 6 Sat
-  const offset = weekday === 0 ? -6 : 1 - weekday;
-  day.setDate(day.getDate() + offset);
-  return day;
-}
-
-function addDays(date: Date, days: number): Date {
-  return new Date(date.getTime() + days * DAY_MS);
-}
-
-function toDayKey(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-}
 
 function formatWeekRange(weekStart: Date): string {
   const weekEnd = addDays(weekStart, 6);
@@ -91,39 +57,6 @@ function formatTime(iso: string): string {
 function formatClientShort(job: Job): string {
   const name = job.client.name?.trim();
   return name || job.client.phone;
-}
-
-function buildWeekDays(jobs: Job[], weekStart: Date): DayColumn[] {
-  const todayKey = toDayKey(new Date());
-  const byDay = new Map<string, Job[]>();
-
-  for (const job of jobs) {
-    const key = toDayKey(new Date(job.displayAt));
-    const bucket = byDay.get(key);
-    if (bucket) {
-      bucket.push(job);
-    } else {
-      byDay.set(key, [job]);
-    }
-  }
-
-  for (const bucket of byDay.values()) {
-    bucket.sort(
-      (a, b) =>
-        new Date(a.displayAt).getTime() - new Date(b.displayAt).getTime(),
-    );
-  }
-
-  return Array.from({ length: 7 }, (_, index) => {
-    const date = addDays(weekStart, index);
-    const key = toDayKey(date);
-    return {
-      key,
-      date,
-      jobs: byDay.get(key) ?? [],
-      isToday: key === todayKey,
-    };
-  });
 }
 
 export function JobCalendar({ jobs }: JobCalendarProps) {
@@ -195,12 +128,11 @@ export function JobCalendar({ jobs }: JobCalendarProps) {
         </p>
       ) : null}
 
-      <div className={styles.grid} role="list">
+      <div className={styles.grid}>
         {days.map((day) => (
           <div
             key={day.key}
             className={`${styles.day} ${day.isToday ? styles.dayToday : ""}`}
-            role="listitem"
             aria-label={formatDayHeading(day.date)}
           >
             <div className={styles.dayHeader}>{formatDayHeading(day.date)}</div>
@@ -213,10 +145,7 @@ export function JobCalendar({ jobs }: JobCalendarProps) {
                     className={`${styles.event} ${STATUS_CLASS[job.status]}`}
                     title={`${JOB_STATUS_LABELS[job.status]} · ${job.car}`}
                   >
-                    <time
-                      className={styles.eventTime}
-                      dateTime={job.displayAt}
-                    >
+                    <time className={styles.eventTime} dateTime={job.displayAt}>
                       {formatTime(job.displayAt)}
                     </time>
                     <span className={styles.eventTitle}>

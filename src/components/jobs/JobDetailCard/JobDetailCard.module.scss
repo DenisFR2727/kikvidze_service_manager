@@ -193,7 +193,11 @@
 }
 
 .delete:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--color-danger-subtle) 70%, var(--color-danger));
+  background: color-mix(
+    in srgb,
+    var(--color-danger-subtle) 70%,
+    var(--color-danger)
+  );
 }
 
 .delete:disabled {

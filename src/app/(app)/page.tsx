@@ -5,7 +5,7 @@ import { JobCalendar } from "@/components/jobs/JobCalendar";
 import { JobForm } from "@/components/jobs/JobForm";
 import { JobList } from "@/components/jobs/JobList";
 import { ApiError, apiClient } from "@/lib/api-client";
-import type { CreateJobInput, Job, ListResponse } from "@/lib/types";
+import type { CreateJobInput, Job, JobStatus, ListResponse } from "@/lib/types";
 
 type HomeView = "list" | "calendar";
 
@@ -66,6 +66,19 @@ export default function HomePage() {
     return created;
   }
 
+  async function handleStatusChange(
+    jobId: string,
+    status: JobStatus,
+  ): Promise<Job> {
+    const updated = await apiClient.patch<Job>(`/api/jobs/${jobId}`, {
+      status,
+    });
+    setJobs((current) =>
+      current.map((job) => (job.id === jobId ? updated : job)),
+    );
+    return updated;
+  }
+
   return (
     <div className="home">
       <JobForm onSubmit={handleCreateJob} />
@@ -121,7 +134,7 @@ export default function HomePage() {
 
           {!isLoading && !loadError ? (
             view === "list" ? (
-              <JobList jobs={jobs} />
+              <JobList jobs={jobs} onStatusChange={handleStatusChange} />
             ) : (
               <JobCalendar jobs={jobs} />
             )

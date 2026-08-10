@@ -1,20 +1,14 @@
+"use client";
+
 import Link from "next/link";
-import {
-  JOB_STATUS_LABELS,
-  type Job,
-  type JobStatus,
-} from "@/lib/types";
+import { useState } from "react";
+import { JobStatusSelect } from "@/components/jobs/JobStatusSelect";
+import { JOB_STATUS_LABELS, type Job, type JobStatus } from "@/lib/types";
 import styles from "./JobList.module.scss";
 
 export type JobListProps = {
   jobs: Job[];
-};
-
-const STATUS_CLASS: Record<JobStatus, string> = {
-  queued: styles.statusQueued,
-  in_progress: styles.statusInProgress,
-  done: styles.statusDone,
-  cancelled: styles.statusCancelled,
+  onStatusChange?: (jobId: string, status: JobStatus) => void | Promise<Job>;
 };
 
 function formatDisplayAt(iso: string): string {
@@ -35,7 +29,34 @@ function formatClient(job: Job): string {
   return name?.trim() ? `${phone} · ${name.trim()}` : phone;
 }
 
-export function JobList({ jobs }: JobListProps) {
+export function JobList({ jobs, onStatusChange }: JobListProps) {
+  const [pendingId, setPendingId] = useState<string | null>(null);
+  const [rowError, setRowError] = useState<{
+    jobId: string;
+    message: string;
+  } | null>(null);
+
+  async function handleStatusChange(jobId: string, status: JobStatus) {
+    if (!onStatusChange) {
+      return;
+    }
+
+    setPendingId(jobId);
+    setRowError(null);
+
+    try {
+      await onStatusChange(jobId, status);
+    } catch (err) {
+      setRowError({
+        jobId,
+        message:
+          err instanceof Error ? err.message : "Не вдалося змінити статус",
+      });
+    } finally {
+      setPendingId(null);
+    }
+  }
+
   return (
     <section className={styles.panel} aria-labelledby="job-list-title">
       <h2 id="job-list-title" className={styles.title}>
@@ -50,26 +71,36 @@ export function JobList({ jobs }: JobListProps) {
         <ul className={styles.list}>
           {jobs.map((job) => (
             <li key={job.id} className={styles.item}>
-              <Link href={`/jobs/${job.id}`} className={styles.row}>
-                <div className={styles.primary}>
-                  <span className={styles.client}>{formatClient(job)}</span>
-                  <span className={styles.car}>{job.car}</span>
-                </div>
+              <div className={styles.row}>
+                <Link href={`/jobs/${job.id}`} className={styles.rowMain}>
+                  <div className={styles.primary}>
+                    <span className={styles.client}>{formatClient(job)}</span>
+                    <span className={styles.car}>{job.car}</span>
+                  </div>
 
-                <div className={styles.meta}>
-                  <span className={styles.category}>{job.category}</span>
-                  <span className={styles.prices}>
-                    Робота {formatPrice(job.workPrice)} · Матеріали{" "}
-                    {formatPrice(job.materialPrice)}
-                  </span>
-                </div>
+                  <div className={styles.meta}>
+                    <span className={styles.category}>{job.category}</span>
+                    <span className={styles.prices}>
+                      Робота {formatPrice(job.workPrice)} · Матеріали{" "}
+                      {formatPrice(job.materialPrice)}
+                    </span>
+                  </div>
+                </Link>
 
                 <div className={styles.aside}>
-                  <span
-                    className={`${styles.status} ${STATUS_CLASS[job.status]}`}
-                  >
-                    {JOB_STATUS_LABELS[job.status]}
-                  </span>
+                  {onStatusChange ? (
+                    <JobStatusSelect
+                      key={`${job.id}-${job.status}`}
+                      value={job.status}
+                      disabled={pendingId === job.id}
+                      aria-label={`Статус: ${formatClient(job)}`}
+                      onChange={(status) => handleStatusChange(job.id, status)}
+                    />
+                  ) : (
+                    <span className={styles.datetime}>
+                      {JOB_STATUS_LABELS[job.status]}
+                    </span>
+                  )}
                   <time
                     className={styles.datetime}
                     dateTime={job.displayAt}
@@ -77,7 +108,13 @@ export function JobList({ jobs }: JobListProps) {
                     {formatDisplayAt(job.displayAt)}
                   </time>
                 </div>
-              </Link>
+
+                {rowError?.jobId === job.id ? (
+                  <p className={styles.rowError} role="alert">
+                    {rowError.message}
+                  </p>
+                ) : null}
+              </div>
             </li>
           ))}
         </ul>

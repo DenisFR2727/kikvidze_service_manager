@@ -1,4 +1,10 @@
-import { Schema, model, type InferSchemaType, type Model } from "mongoose";
+import {
+  Schema,
+  model,
+  type HydratedDocument,
+  type InferSchemaType,
+  type Model,
+} from "mongoose";
 
 export const JOB_STATUSES = [
   "queued",
@@ -60,8 +66,7 @@ const jobSchema = new Schema(
   },
 );
 
-export type JobDocument = InferSchemaType<typeof jobSchema> & {
-  _id: Schema.Types.ObjectId;
-};
+export type JobFields = InferSchemaType<typeof jobSchema>;
+export type JobDocument = HydratedDocument<JobFields>;
 
-export const Job: Model<JobDocument> = model<JobDocument>("Job", jobSchema);
+export const Job: Model<JobFields> = model<JobFields>("Job", jobSchema);

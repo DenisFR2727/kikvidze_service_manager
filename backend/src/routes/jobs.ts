@@ -1,12 +1,21 @@
 import { Router, type Request, type Response } from "express";
-import { validateBody } from "../middleware/validate.js";
+import { AppError } from "../middleware/errorHandler.js";
+import {
+  validateBody,
+  validateParams,
+} from "../middleware/validate.js";
 import { Client, type ClientDocument } from "../models/Client.js";
 import { Job, type JobDocument } from "../models/Job.js";
 import {
   createJobBodySchema,
+  jobIdParamsSchema,
+  updateJobBodySchema,
   type CreateJobBody,
+  type JobIdParams,
+  type UpdateJobBody,
 } from "../schemas/jobSchemas.js";
 import { findOrCreateClient } from "../services/clientService.js";
+import { applyStatusTransition } from "../services/jobService.js";
 
 type Timestamps = {
   createdAt?: Date;
@@ -64,6 +73,22 @@ async function loadClientsById(
   return new Map(clients.map((client) => [String(client._id), client]));
 }
 
+async function requireJob(id: string): Promise<JobDocument> {
+  const job = await Job.findById(id).exec();
+  if (!job) {
+    throw new AppError("NOT_FOUND", "Job not found");
+  }
+  return job;
+}
+
+async function requireClient(clientId: string): Promise<ClientDocument> {
+  const client = await Client.findById(clientId).exec();
+  if (!client) {
+    throw new AppError("NOT_FOUND", "Client not found");
+  }
+  return client;
+}
+
 async function listJobsHandler(_req: Request, res: Response): Promise<void> {
   const jobs = await Job.find().sort({ scheduledAt: -1 }).exec();
   const clientsById = await loadClientsById(
@@ -99,11 +124,71 @@ async function createJobHandler(req: Request, res: Response): Promise<void> {
   res.status(201).json(serializeJob(job, client));
 }
 
+async function patchJobHandler(req: Request, res: Response): Promise<void> {
+  const { id } = req.params as JobIdParams;
+  const body = req.body as UpdateJobBody;
+  const job = await requireJob(id);
+
+  let client = await requireClient(String(job.clientId));
+
+  if (body.phone !== undefined) {
+    const result = await findOrCreateClient({
+      phone: body.phone,
+      name: body.name,
+    });
+    client = result.client;
+    job.clientId = result.client._id;
+  } else if (body.name !== undefined) {
+    const trimmed = body.name?.trim() ?? "";
+    if (trimmed) {
+      client.name = trimmed;
+    } else {
+      client.name = undefined;
+    }
+    await client.save();
+  }
+
+  if (body.car !== undefined) {
+    job.car = body.car;
+  }
+  if (body.category !== undefined) {
+    job.category = body.category;
+  }
+  if (body.scheduledAt !== undefined) {
+    job.scheduledAt = body.scheduledAt;
+  }
+  if (body.workPrice !== undefined) {
+    job.workPrice = body.workPrice;
+  }
+  if (body.materialPrice !== undefined) {
+    job.materialPrice = body.materialPrice;
+  }
+
+  // Explicit completedAt before status so transition can still fill if null + done
+  if (body.completedAt !== undefined) {
+    job.completedAt = body.completedAt ?? undefined;
+  }
+
+  if (body.status !== undefined) {
+    applyStatusTransition(job, body.status);
+  }
+
+  await job.save();
+
+  res.status(200).json(serializeJob(job, client));
+}
+
 export function createJobsRouter(): Router {
   const router = Router();
 
   router.get("/", listJobsHandler);
   router.post("/", validateBody(createJobBodySchema), createJobHandler);
+  router.patch(
+    "/:id",
+    validateParams(jobIdParamsSchema),
+    validateBody(updateJobBodySchema),
+    patchJobHandler,
+  );
 
   return router;
 }

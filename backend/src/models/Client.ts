@@ -1,4 +1,10 @@
-import { Schema, model, type InferSchemaType, type Model } from "mongoose";
+import {
+  Schema,
+  model,
+  type HydratedDocument,
+  type InferSchemaType,
+  type Model,
+} from "mongoose";
 
 const clientSchema = new Schema(
   {
@@ -25,11 +31,10 @@ const clientSchema = new Schema(
   },
 );
 
-export type ClientDocument = InferSchemaType<typeof clientSchema> & {
-  _id: Schema.Types.ObjectId;
-};
+export type ClientFields = InferSchemaType<typeof clientSchema>;
+export type ClientDocument = HydratedDocument<ClientFields>;
 
-export const Client: Model<ClientDocument> = model<ClientDocument>(
+export const Client: Model<ClientFields> = model<ClientFields>(
   "Client",
   clientSchema,
 );

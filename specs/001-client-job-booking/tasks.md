@@ -117,10 +117,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] Add status transition helper (set `completedAt` on `done`) in `backend/src/services/jobService.ts`
-- [ ] T033 [US3] Implement `PATCH /api/jobs/:id` status (and shared patch entry) in `backend/src/routes/jobs.ts`
-- [ ] T034 [P] [US3] Add `JobStatusSelect` control in `src/components/jobs/JobStatusSelect.tsx`
-- [ ] T035 [US3] Enable quick status change from list rows in `src/components/jobs/JobList.tsx` (calls PATCH)
+- [x] T032 [US3] Add status transition helper (set `completedAt` on `done`) in `backend/src/services/jobService.ts`
+- [x] T033 [US3] Implement `PATCH /api/jobs/:id` status (and shared patch entry) in `backend/src/routes/jobs.ts`
+- [x] T034 [P] [US3] Add `JobStatusSelect` control in `src/components/jobs/JobStatusSelect.tsx`
+- [x] T035 [US3] Enable quick status change from list rows in `src/components/jobs/JobList.tsx` (calls PATCH)
 
 **Checkpoint**: Status lifecycle works from list (FR-004–006, SC-006)
 

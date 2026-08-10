@@ -1,20 +1,69 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { JobCalendar } from "@/components/jobs/JobCalendar";
 import { JobForm } from "@/components/jobs/JobForm";
 import { JobList } from "@/components/jobs/JobList";
-import { apiClient } from "@/lib/api-client";
-import type { CreateJobInput, Job } from "@/lib/types";
+import { ApiError, apiClient } from "@/lib/api-client";
+import type { CreateJobInput, Job, ListResponse } from "@/lib/types";
 
 type HomeView = "list" | "calendar";
 
 export default function HomePage() {
   const [view, setView] = useState<HomeView>("list");
-  const jobs: Job[] = [];
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  async function fetchJobs(): Promise<void> {
+    const data = await apiClient.get<ListResponse<Job>>("/api/jobs");
+    setJobs(data.items);
+  }
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      setIsLoading(true);
+      setLoadError(null);
+
+      try {
+        const data = await apiClient.get<ListResponse<Job>>("/api/jobs");
+        if (!cancelled) {
+          setJobs(data.items);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setLoadError(
+            err instanceof ApiError
+              ? err.message
+              : "Не вдалося завантажити роботи",
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function handleCreateJob(values: CreateJobInput): Promise<Job> {
-    return apiClient.post<Job>("/api/jobs", values);
+    const created = await apiClient.post<Job>("/api/jobs", values);
+    try {
+      await fetchJobs();
+      setLoadError(null);
+    } catch {
+      setJobs((current) => [created, ...current]);
+      setLoadError(null);
+    }
+    return created;
   }
 
   return (
@@ -58,11 +107,25 @@ export default function HomePage() {
             view === "list" ? "home-view-list" : "home-view-calendar"
           }
         >
-          {view === "list" ? (
-            <JobList jobs={jobs} />
-          ) : (
-            <JobCalendar jobs={jobs} />
-          )}
+          {isLoading ? (
+            <p className="home__status" aria-busy="true" aria-live="polite">
+              Завантаження робіт…
+            </p>
+          ) : null}
+
+          {loadError ? (
+            <p className="home__error" role="alert">
+              {loadError}
+            </p>
+          ) : null}
+
+          {!isLoading && !loadError ? (
+            view === "list" ? (
+              <JobList jobs={jobs} />
+            ) : (
+              <JobCalendar jobs={jobs} />
+            )
+          ) : null}
         </div>
       </section>
     </div>

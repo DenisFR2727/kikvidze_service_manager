@@ -160,3 +160,18 @@ textarea {
   color: var(--color-fg);
   box-shadow: var(--shadow-sm);
 }
+
+.home__status {
+  padding: var(--space-6) var(--space-2);
+  text-align: center;
+  color: var(--color-fg-muted);
+  font-size: var(--text-sm);
+}
+
+.home__error {
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-danger-subtle);
+  color: var(--color-danger);
+  font-size: var(--text-sm);
+}

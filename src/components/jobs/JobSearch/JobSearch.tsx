@@ -2,12 +2,13 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { uk } from "@/lib/i18n/uk";
+import { normalizeJobSearch, shouldCommitJobSearch } from "./jobSearchQuery";
 import styles from "./JobSearch.module.scss";
 
 const DEFAULT_DEBOUNCE_MS = 300;
 
 export type JobSearchProps = {
-  /** Debounced search value used for API refetch. */
+  /** Debounced, normalized search value used for API refetch. */
   value: string;
   onChange: (value: string) => void;
   disabled?: boolean;
@@ -30,10 +31,9 @@ export function JobSearch({
   }, [value]);
 
   useEffect(() => {
-    const trimmed = draft.trim();
     const timer = window.setTimeout(() => {
-      if (trimmed !== value.trim()) {
-        onChangeRef.current(trimmed);
+      if (shouldCommitJobSearch(draft, value)) {
+        onChangeRef.current(normalizeJobSearch(draft));
       }
     }, debounceMs);
 

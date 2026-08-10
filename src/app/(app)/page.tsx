@@ -10,7 +10,10 @@ import {
 } from "@/components/jobs/JobFilters";
 import { JobForm } from "@/components/jobs/JobForm";
 import { JobList } from "@/components/jobs/JobList";
-import { JobSearch } from "@/components/jobs/JobSearch";
+import {
+  JobSearch,
+  normalizeJobSearch,
+} from "@/components/jobs/JobSearch";
 import { ApiError, apiClient } from "@/lib/api-client";
 import { uk } from "@/lib/i18n/uk";
 import type {
@@ -28,9 +31,9 @@ function buildJobsQuery(
   search: string,
 ): JobsQuery {
   const query = jobFiltersToQuery(filters);
-  const trimmed = search.trim();
-  if (trimmed) {
-    query.q = trimmed;
+  const q = normalizeJobSearch(search);
+  if (q) {
+    query.q = q;
   }
   return query;
 }
@@ -213,7 +216,7 @@ export default function HomePage() {
         onCreated={handleJobCreated}
       />
 
-      <JobSearch value={search} onChange={setSearch} disabled={isLoading} />
+      <JobSearch value={search} onChange={setSearch} />
 
       <JobFilters
         value={filters}

@@ -1,7 +1,7 @@
 import { Router, type Request, type Response } from "express";
 import { validateBody } from "../middleware/validate.js";
+import { Client, type ClientDocument } from "../models/Client.js";
 import { Job, type JobDocument } from "../models/Job.js";
-import type { ClientDocument } from "../models/Client.js";
 import {
   createJobBodySchema,
   type CreateJobBody,
@@ -13,6 +13,7 @@ type Timestamps = {
   updatedAt?: Date;
 };
 
+/** Relevant datetime for list/calendar (FR-008). */
 function getDisplayAt(job: JobDocument): Date {
   if (job.status === "done" && job.completedAt) {
     return job.completedAt;
@@ -52,6 +53,31 @@ function serializeJob(job: JobDocument, client: ClientDocument) {
   };
 }
 
+async function loadClientsById(
+  clientIds: string[],
+): Promise<Map<string, ClientDocument>> {
+  if (clientIds.length === 0) {
+    return new Map();
+  }
+
+  const clients = await Client.find().where("_id").in(clientIds).exec();
+  return new Map(clients.map((client) => [String(client._id), client]));
+}
+
+async function listJobsHandler(_req: Request, res: Response): Promise<void> {
+  const jobs = await Job.find().sort({ scheduledAt: -1 }).exec();
+  const clientsById = await loadClientsById(
+    [...new Set(jobs.map((job) => String(job.clientId)))],
+  );
+
+  const items = jobs.flatMap((job) => {
+    const client = clientsById.get(String(job.clientId));
+    return client ? [serializeJob(job, client)] : [];
+  });
+
+  res.status(200).json({ items });
+}
+
 async function createJobHandler(req: Request, res: Response): Promise<void> {
   const body = req.body as CreateJobBody;
 
@@ -76,6 +102,7 @@ async function createJobHandler(req: Request, res: Response): Promise<void> {
 export function createJobsRouter(): Router {
   const router = Router();
 
+  router.get("/", listJobsHandler);
   router.post("/", validateBody(createJobBodySchema), createJobHandler);
 
   return router;

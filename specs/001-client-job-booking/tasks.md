@@ -85,7 +85,7 @@
 - [x] T023 [US1] Implement `POST /api/jobs` (upsert client + create job `queued`) in `backend/src/routes/jobs.ts` with Zod schema in `backend/src/schemas/jobSchemas.ts`
 - [x] T024 [P] [US1] Build create `JobForm` in `src/components/jobs/JobForm.tsx` + `JobForm.module.scss` (phone, optional name, car, category, datetime, prices)
 - [x] T025 [US1] Embed create panel on home in `src/app/(app)/page.tsx` and call `POST /api/jobs` via `src/lib/api-client.ts`
-- [ ] T026 [US1] Show success/error toasts or inline messages after create in `src/components/jobs/JobForm.tsx`
+- [x] T026 [US1] Show success/error toasts or inline messages after create in `src/components/jobs/JobForm.tsx`
 
 **Checkpoint**: Admin can create persistent jobs linked to clients (FR-001, FR-003, FR-023–025) — **MVP demo ready** with auth + create (+ minimal list fetch optional below)
 

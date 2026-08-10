@@ -97,6 +97,14 @@
   font-size: var(--text-sm);
 }
 
+.formSuccess {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-status-done-bg);
+  color: var(--color-status-done);
+  font-size: var(--text-sm);
+}
+
 .actions {
   display: flex;
   justify-content: flex-start;

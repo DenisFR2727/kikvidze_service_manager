@@ -5,8 +5,8 @@ import { apiClient } from "@/lib/api-client";
 import type { CreateJobInput, Job } from "@/lib/types";
 
 export default function HomePage() {
-  async function handleCreateJob(values: CreateJobInput) {
-    await apiClient.post<Job>("/api/jobs", values);
+  async function handleCreateJob(values: CreateJobInput): Promise<Job> {
+    return apiClient.post<Job>("/api/jobs", values);
   }
 
   return (

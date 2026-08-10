@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ApiError } from "@/lib/api-client";
-import type { CreateJobInput } from "@/lib/types";
+import { JOB_STATUS_LABELS, type CreateJobInput, type Job } from "@/lib/types";
 import styles from "./JobForm.module.scss";
 
 type FieldKey =
@@ -16,9 +16,14 @@ type FieldKey =
 
 type FieldErrors = Partial<Record<FieldKey, string>>;
 
+type FormFeedback = {
+  type: "success" | "error";
+  message: string;
+};
+
 export type JobFormProps = {
-  /** Called with normalized create payload; reject/throw to show errors. */
-  onSubmit: (values: CreateJobInput) => void | Promise<void>;
+  /** Called with normalized create payload; return created job for success details. */
+  onSubmit: (values: CreateJobInput) => void | Promise<void | Job>;
 };
 
 function parseNonNegativePrice(
@@ -50,8 +55,34 @@ export function JobForm({ onSubmit }: JobFormProps) {
   const [workPrice, setWorkPrice] = useState("");
   const [materialPrice, setMaterialPrice] = useState("");
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
-  const [formError, setFormError] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<FormFeedback | null>(null);
   const [isPending, setIsPending] = useState(false);
+
+  function clearSuccessFeedback() {
+    setFeedback((current) =>
+      current?.type === "success" ? null : current,
+    );
+  }
+
+  function updateField<T>(setter: (value: T) => void, value: T) {
+    clearSuccessFeedback();
+    setter(value);
+  }
+
+  function resetFormAfterSuccess() {
+    setName("");
+    setCar("");
+    setCategory("");
+    setScheduledAtLocal("");
+    setWorkPrice("");
+    setMaterialPrice("");
+    setFieldErrors({});
+  }
+
+  function buildSuccessMessage(job: Job): string {
+    const statusLabel = JOB_STATUS_LABELS[job.status];
+    return `Запис збережено: ${job.car} — ${job.category} (${statusLabel})`;
+  }
 
   function validate(): { payload?: CreateJobInput; errors: FieldErrors } {
     const errors: FieldErrors = {};
@@ -116,7 +147,7 @@ export function JobForm({ onSubmit }: JobFormProps) {
 
     const { payload, errors } = validate();
     setFieldErrors(errors);
-    setFormError(null);
+    setFeedback(null);
 
     if (!payload) {
       return;
@@ -124,7 +155,15 @@ export function JobForm({ onSubmit }: JobFormProps) {
 
     setIsPending(true);
     try {
-      await onSubmit(payload);
+      const result = await onSubmit(payload);
+      resetFormAfterSuccess();
+      setFeedback({
+        type: "success",
+        message:
+          result && typeof result === "object" && "id" in result
+            ? buildSuccessMessage(result)
+            : "Запис успішно збережено",
+      });
     } catch (err) {
       if (err instanceof ApiError && err.fields) {
         setFieldErrors((current) => ({ ...current, ...err.fields }));
@@ -134,7 +173,7 @@ export function JobForm({ onSubmit }: JobFormProps) {
         err instanceof Error && err.message
           ? err.message
           : "Не вдалося зберегти запис. Спробуйте ще раз.";
-      setFormError(message);
+      setFeedback({ type: "error", message });
     } finally {
       setIsPending(false);
     }
@@ -182,7 +221,7 @@ export function JobForm({ onSubmit }: JobFormProps) {
               inputMode="tel"
               placeholder="+380671112233"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={(e) => updateField(setPhone, e.target.value)}
               disabled={isPending}
               aria-invalid={Boolean(fieldErrors.phone)}
               aria-describedby={
@@ -204,7 +243,7 @@ export function JobForm({ onSubmit }: JobFormProps) {
               autoComplete="name"
               placeholder="Опційно"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => updateField(setName, e.target.value)}
               disabled={isPending}
               aria-invalid={Boolean(fieldErrors.name)}
               aria-describedby={
@@ -225,7 +264,7 @@ export function JobForm({ onSubmit }: JobFormProps) {
               type="text"
               placeholder="BMW X5"
               value={car}
-              onChange={(e) => setCar(e.target.value)}
+              onChange={(e) => updateField(setCar, e.target.value)}
               disabled={isPending}
               aria-invalid={Boolean(fieldErrors.car)}
               aria-describedby={
@@ -246,7 +285,7 @@ export function JobForm({ onSubmit }: JobFormProps) {
               type="text"
               placeholder="Пошив сидінь"
               value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              onChange={(e) => updateField(setCategory, e.target.value)}
               disabled={isPending}
               aria-invalid={Boolean(fieldErrors.category)}
               aria-describedby={
@@ -268,7 +307,7 @@ export function JobForm({ onSubmit }: JobFormProps) {
               name="scheduledAt"
               type="datetime-local"
               value={scheduledAtLocal}
-              onChange={(e) => setScheduledAtLocal(e.target.value)}
+              onChange={(e) => updateField(setScheduledAtLocal, e.target.value)}
               disabled={isPending}
               aria-invalid={Boolean(fieldErrors.scheduledAt)}
               aria-describedby={
@@ -294,7 +333,7 @@ export function JobForm({ onSubmit }: JobFormProps) {
               inputMode="decimal"
               placeholder="0"
               value={workPrice}
-              onChange={(e) => setWorkPrice(e.target.value)}
+              onChange={(e) => updateField(setWorkPrice, e.target.value)}
               disabled={isPending}
               aria-invalid={Boolean(fieldErrors.workPrice)}
               aria-describedby={
@@ -320,7 +359,7 @@ export function JobForm({ onSubmit }: JobFormProps) {
               inputMode="decimal"
               placeholder="0"
               value={materialPrice}
-              onChange={(e) => setMaterialPrice(e.target.value)}
+              onChange={(e) => updateField(setMaterialPrice, e.target.value)}
               disabled={isPending}
               aria-invalid={Boolean(fieldErrors.materialPrice)}
               aria-describedby={
@@ -333,9 +372,17 @@ export function JobForm({ onSubmit }: JobFormProps) {
           </div>
         </div>
 
-        {formError ? (
-          <p className={styles.formError} role="alert">
-            {formError}
+        {feedback ? (
+          <p
+            className={
+              feedback.type === "success"
+                ? styles.formSuccess
+                : styles.formError
+            }
+            role={feedback.type === "success" ? "status" : "alert"}
+            aria-live="polite"
+          >
+            {feedback.message}
           </p>
         ) : null}
 

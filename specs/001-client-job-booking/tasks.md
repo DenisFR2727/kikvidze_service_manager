@@ -134,10 +134,10 @@
 
 ### Implementation for User Story 4
 
-- [ ] T036 [US4] Extend `GET /api/jobs` query (`status`, `from`, `to`, `category`) in `backend/src/routes/jobs.ts`
-- [ ] T037 [P] [US4] Build `JobFilters` panel in `src/components/jobs/JobFilters.tsx` + `JobFilters.module.scss`
-- [ ] T038 [US4] Wire filters into home state and refetch in `src/app/(app)/page.tsx` (shared filter for list+calendar — FR-032)
-- [ ] T039 [US4] Implement `GET /api/categories` in `backend/src/routes/categories.ts` and category suggestions in `src/components/jobs/JobForm.tsx` / filter category select
+- [x] T036 [US4] Extend `GET /api/jobs` query (`status`, `from`, `to`, `category`) in `backend/src/routes/jobs.ts`
+- [x] T037 [P] [US4] Build `JobFilters` panel in `src/components/jobs/JobFilters.tsx` + `JobFilters.module.scss`
+- [x] T038 [US4] Wire filters into home state and refetch in `src/app/(app)/page.tsx` (shared filter for list+calendar — FR-032)
+- [x] T039 [US4] Implement `GET /api/categories` in `backend/src/routes/categories.ts` and category suggestions in `src/components/jobs/JobForm.tsx` / filter category select
 
 **Checkpoint**: Filters + categories work (FR-010, FR-015, FR-032)
 

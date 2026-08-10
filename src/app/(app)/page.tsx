@@ -2,23 +2,65 @@
 
 import { useEffect, useState } from "react";
 import { JobCalendar } from "@/components/jobs/JobCalendar";
+import {
+  EMPTY_JOB_FILTERS,
+  JobFilters,
+  jobFiltersToQuery,
+  type JobFiltersValue,
+} from "@/components/jobs/JobFilters";
 import { JobForm } from "@/components/jobs/JobForm";
 import { JobList } from "@/components/jobs/JobList";
 import { ApiError, apiClient } from "@/lib/api-client";
-import type { CreateJobInput, Job, JobStatus, ListResponse } from "@/lib/types";
+import type {
+  CreateJobInput,
+  Job,
+  JobStatus,
+  ListResponse,
+} from "@/lib/types";
 
 type HomeView = "list" | "calendar";
 
 export default function HomePage() {
   const [view, setView] = useState<HomeView>("list");
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [filters, setFilters] = useState<JobFiltersValue>(EMPTY_JOB_FILTERS);
+  const [categories, setCategories] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  async function fetchJobs(): Promise<void> {
-    const data = await apiClient.get<ListResponse<Job>>("/api/jobs");
+  async function fetchCategories(): Promise<void> {
+    const data = await apiClient.get<ListResponse<string>>("/api/categories");
+    setCategories(data.items);
+  }
+
+  async function fetchJobs(nextFilters: JobFiltersValue): Promise<void> {
+    const data = await apiClient.get<ListResponse<Job>>("/api/jobs", {
+      query: jobFiltersToQuery(nextFilters),
+    });
     setJobs(data.items);
   }
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadCategories() {
+      try {
+        const data =
+          await apiClient.get<ListResponse<string>>("/api/categories");
+        if (!cancelled) {
+          setCategories(data.items);
+        }
+      } catch {
+        // Category suggestions / filter options are optional on first paint.
+      }
+    }
+
+    void loadCategories();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -28,7 +70,9 @@ export default function HomePage() {
       setLoadError(null);
 
       try {
-        const data = await apiClient.get<ListResponse<Job>>("/api/jobs");
+        const data = await apiClient.get<ListResponse<Job>>("/api/jobs", {
+          query: jobFiltersToQuery(filters),
+        });
         if (!cancelled) {
           setJobs(data.items);
         }
@@ -52,18 +96,33 @@ export default function HomePage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [filters]);
 
   async function handleCreateJob(values: CreateJobInput): Promise<Job> {
     const created = await apiClient.post<Job>("/api/jobs", values);
     try {
-      await fetchJobs();
+      await fetchJobs(filters);
       setLoadError(null);
     } catch {
       setJobs((current) => [created, ...current]);
       setLoadError(null);
     }
     return created;
+  }
+
+  async function handleJobCreated(job: Job): Promise<void> {
+    try {
+      await fetchCategories();
+    } catch {
+      setCategories((current) => {
+        if (current.includes(job.category)) {
+          return current;
+        }
+        return [...current, job.category].sort((a, b) =>
+          a.localeCompare(b, "uk"),
+        );
+      });
+    }
   }
 
   async function handleStatusChange(
@@ -73,15 +132,43 @@ export default function HomePage() {
     const updated = await apiClient.patch<Job>(`/api/jobs/${jobId}`, {
       status,
     });
-    setJobs((current) =>
-      current.map((job) => (job.id === jobId ? updated : job)),
-    );
+
+    const stillMatches =
+      !filters.status || updated.status === filters.status;
+
+    setJobs((current) => {
+      if (!stillMatches) {
+        return current.filter((job) => job.id !== jobId);
+      }
+      return current.map((job) => (job.id === jobId ? updated : job));
+    });
+
     return updated;
+  }
+
+  function handleFiltersChange(next: JobFiltersValue) {
+    setFilters(next);
+  }
+
+  function handleFiltersReset() {
+    setFilters(EMPTY_JOB_FILTERS);
   }
 
   return (
     <div className="home">
-      <JobForm onSubmit={handleCreateJob} />
+      <JobForm
+        categories={categories}
+        onSubmit={handleCreateJob}
+        onCreated={handleJobCreated}
+      />
+
+      <JobFilters
+        value={filters}
+        categories={categories}
+        onChange={handleFiltersChange}
+        onReset={handleFiltersReset}
+        disabled={isLoading}
+      />
 
       <section className="home__board" aria-label="Огляд робіт">
         <div

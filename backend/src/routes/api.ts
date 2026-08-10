@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { requireAuth } from "../middleware/auth.js";
 import { createAuthRouter } from "./auth.js";
+import { createCategoriesRouter } from "./categories.js";
 import { createJobsRouter } from "./jobs.js";
 
 /**
@@ -20,6 +21,7 @@ export function createApiRouter(): Router {
   api.use(requireAuth);
 
   api.use("/jobs", createJobsRouter());
+  api.use("/categories", createCategoriesRouter());
 
   return api;
 }

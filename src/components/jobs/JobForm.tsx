@@ -1,8 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { ApiError } from "@/lib/api-client";
-import { JOB_STATUS_LABELS, type CreateJobInput, type Job } from "@/lib/types";
+import { useEffect, useId, useState } from "react";
+import { ApiError, apiClient } from "@/lib/api-client";
+import {
+  JOB_STATUS_LABELS,
+  type CreateJobInput,
+  type Job,
+  type ListResponse,
+} from "@/lib/types";
 import styles from "./JobForm.module.scss";
 
 type FieldKey =
@@ -24,6 +29,10 @@ type FormFeedback = {
 export type JobFormProps = {
   /** Called with normalized create payload; return created job for success details. */
   onSubmit: (values: CreateJobInput) => void | Promise<void | Job>;
+  /** Optional known categories for suggestions (FR-015); otherwise loaded from API. */
+  categories?: string[];
+  /** Called after a successful create so parents can refresh category lists. */
+  onCreated?: (job: Job) => void;
 };
 
 function parseNonNegativePrice(
@@ -46,7 +55,8 @@ function parseNonNegativePrice(
   return { value };
 }
 
-export function JobForm({ onSubmit }: JobFormProps) {
+export function JobForm({ onSubmit, categories, onCreated }: JobFormProps) {
+  const categoryListId = useId();
   const [phone, setPhone] = useState("");
   const [name, setName] = useState("");
   const [car, setCar] = useState("");
@@ -57,6 +67,36 @@ export function JobForm({ onSubmit }: JobFormProps) {
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [feedback, setFeedback] = useState<FormFeedback | null>(null);
   const [isPending, setIsPending] = useState(false);
+  const [loadedCategories, setLoadedCategories] = useState<string[]>([]);
+
+  const categoryOptions = categories ?? loadedCategories;
+
+  useEffect(() => {
+    if (categories !== undefined) {
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadCategories() {
+      try {
+        const data = await apiClient.get<ListResponse<string>>(
+          "/api/categories",
+        );
+        if (!cancelled) {
+          setLoadedCategories(data.items);
+        }
+      } catch {
+        // Suggestions are optional — form still works with free text.
+      }
+    }
+
+    void loadCategories();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [categories]);
 
   function clearSuccessFeedback() {
     setFeedback((current) =>
@@ -157,13 +197,30 @@ export function JobForm({ onSubmit }: JobFormProps) {
     try {
       const result = await onSubmit(payload);
       resetFormAfterSuccess();
-      setFeedback({
-        type: "success",
-        message:
-          result && typeof result === "object" && "id" in result
-            ? buildSuccessMessage(result)
-            : "Запис успішно збережено",
-      });
+
+      if (result && typeof result === "object" && "id" in result) {
+        setFeedback({
+          type: "success",
+          message: buildSuccessMessage(result),
+        });
+        onCreated?.(result);
+
+        if (categories === undefined) {
+          setLoadedCategories((current) => {
+            if (current.includes(result.category)) {
+              return current;
+            }
+            return [...current, result.category].sort((a, b) =>
+              a.localeCompare(b, "uk"),
+            );
+          });
+        }
+      } else {
+        setFeedback({
+          type: "success",
+          message: "Запис успішно збережено",
+        });
+      }
     } catch (err) {
       if (err instanceof ApiError && err.fields) {
         setFieldErrors((current) => ({ ...current, ...err.fields }));
@@ -283,6 +340,7 @@ export function JobForm({ onSubmit }: JobFormProps) {
               className={styles.input}
               name="category"
               type="text"
+              list={categoryListId}
               placeholder="Пошив сидінь"
               value={category}
               onChange={(e) => updateField(setCategory, e.target.value)}
@@ -294,6 +352,11 @@ export function JobForm({ onSubmit }: JobFormProps) {
                   : undefined
               }
             />
+            <datalist id={categoryListId}>
+              {categoryOptions.map((option) => (
+                <option key={option} value={option} />
+              ))}
+            </datalist>
             {renderFieldError("category")}
           </div>
 

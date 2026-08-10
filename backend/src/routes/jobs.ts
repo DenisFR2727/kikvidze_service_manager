@@ -3,33 +3,31 @@ import { AppError } from "../middleware/errorHandler.js";
 import {
   validateBody,
   validateParams,
+  validateQuery,
 } from "../middleware/validate.js";
 import { Client, type ClientDocument } from "../models/Client.js";
 import { Job, type JobDocument } from "../models/Job.js";
 import {
   createJobBodySchema,
   jobIdParamsSchema,
+  listJobsQuerySchema,
   updateJobBodySchema,
   type CreateJobBody,
   type JobIdParams,
+  type ListJobsQuery,
   type UpdateJobBody,
 } from "../schemas/jobSchemas.js";
 import { findOrCreateClient } from "../services/clientService.js";
-import { applyStatusTransition } from "../services/jobService.js";
+import {
+  applyStatusTransition,
+  getDisplayAt,
+  matchesDisplayAtRange,
+} from "../services/jobService.js";
 
 type Timestamps = {
   createdAt?: Date;
   updatedAt?: Date;
 };
-
-/** Relevant datetime for list/calendar (FR-008). */
-function getDisplayAt(job: JobDocument): Date {
-  if (job.status === "done" && job.completedAt) {
-    return job.completedAt;
-  }
-
-  return job.scheduledAt;
-}
 
 function serializeClient(client: ClientDocument) {
   return {
@@ -89,13 +87,27 @@ async function requireClient(clientId: string): Promise<ClientDocument> {
   return client;
 }
 
-async function listJobsHandler(_req: Request, res: Response): Promise<void> {
-  const jobs = await Job.find().sort({ scheduledAt: -1 }).exec();
-  const clientsById = await loadClientsById(
-    [...new Set(jobs.map((job) => String(job.clientId)))],
+async function listJobsHandler(req: Request, res: Response): Promise<void> {
+  const query = req.query as unknown as ListJobsQuery;
+  const filter: Record<string, unknown> = {};
+
+  if (query.status) {
+    filter.status = query.status;
+  }
+  if (query.category) {
+    filter.category = query.category;
+  }
+
+  const jobs = await Job.find(filter).sort({ scheduledAt: -1 }).exec();
+  const filtered = jobs.filter((job) =>
+    matchesDisplayAtRange(job, query.from, query.to),
   );
 
-  const items = jobs.flatMap((job) => {
+  const clientsById = await loadClientsById(
+    [...new Set(filtered.map((job) => String(job.clientId)))],
+  );
+
+  const items = filtered.flatMap((job) => {
     const client = clientsById.get(String(job.clientId));
     return client ? [serializeJob(job, client)] : [];
   });
@@ -181,7 +193,7 @@ async function patchJobHandler(req: Request, res: Response): Promise<void> {
 export function createJobsRouter(): Router {
   const router = Router();
 
-  router.get("/", listJobsHandler);
+  router.get("/", validateQuery(listJobsQuerySchema), listJobsHandler);
   router.post("/", validateBody(createJobBodySchema), createJobHandler);
   router.patch(
     "/:id",

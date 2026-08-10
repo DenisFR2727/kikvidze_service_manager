@@ -62,3 +62,35 @@ export const updateJobBodySchema = z
   );
 
 export type UpdateJobBody = z.infer<typeof updateJobBodySchema>;
+
+/** Empty query strings → omitted (Express always yields strings). */
+function emptyToUndefined(value: unknown): unknown {
+  if (value === "" || value === undefined || value === null) {
+    return undefined;
+  }
+  return value;
+}
+
+/**
+ * Query for `GET /api/jobs` (Phase 7 filters).
+ * `from` / `to` bound the relevant date (`displayAt`); both inclusive.
+ */
+export const listJobsQuerySchema = z
+  .object({
+    status: z.preprocess(emptyToUndefined, z.enum(JOB_STATUSES).optional()),
+    from: z.preprocess(emptyToUndefined, z.coerce.date().optional()),
+    to: z.preprocess(emptyToUndefined, z.coerce.date().optional()),
+    category: z.preprocess(
+      emptyToUndefined,
+      z.string().trim().min(1).optional(),
+    ),
+  })
+  .refine(
+    (query) =>
+      query.from === undefined ||
+      query.to === undefined ||
+      query.from.getTime() <= query.to.getTime(),
+    { message: "`from` must be ≤ `to`", path: ["from"] },
+  );
+
+export type ListJobsQuery = z.infer<typeof listJobsQuerySchema>;

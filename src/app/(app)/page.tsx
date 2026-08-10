@@ -93,6 +93,11 @@ export default function HomePage() {
         });
         if (!cancelled) {
           setJobs(data.items);
+          try {
+            sessionStorage.removeItem("jobs-list-stale");
+          } catch {
+            // Ignore storage failures.
+          }
         }
       } catch (err) {
         if (!cancelled) {
@@ -114,6 +119,33 @@ export default function HomePage() {
     return () => {
       cancelled = true;
     };
+  }, [filters, search]);
+
+  // Soft-nav edge case: home kept mounted / restored — refetch after card edit/delete.
+  useEffect(() => {
+    function refreshIfStale() {
+      try {
+        if (sessionStorage.getItem("jobs-list-stale") !== "1") {
+          return;
+        }
+        sessionStorage.removeItem("jobs-list-stale");
+      } catch {
+        return;
+      }
+
+      void apiClient
+        .get<ListResponse<Job>>("/api/jobs", {
+          query: buildJobsQuery(filters, search),
+        })
+        .then((data) => setJobs(data.items))
+        .catch(() => {
+          // Keep current list if refresh fails.
+        });
+    }
+
+    refreshIfStale();
+    window.addEventListener("focus", refreshIfStale);
+    return () => window.removeEventListener("focus", refreshIfStale);
   }, [filters, search]);
 
   async function handleCreateJob(values: CreateJobInput): Promise<Job> {

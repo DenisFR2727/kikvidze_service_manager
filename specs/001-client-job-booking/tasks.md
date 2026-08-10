@@ -167,11 +167,11 @@
 
 ### Implementation for User Story 6
 
-- [ ] T043 [US6] Implement `GET /api/jobs/:id` and harden `PATCH`/`DELETE /api/jobs/:id` (phone rebind) in `backend/src/routes/jobs.ts` + `backend/src/services/jobService.ts`
-- [ ] T044 [P] [US6] Build job detail/edit UI in `src/components/jobs/JobDetailCard.tsx` + `JobDetailCard.module.scss`
-- [ ] T045 [US6] Implement page `src/app/(app)/jobs/[id]/page.tsx` loading job by id
-- [ ] T046 [US6] Add delete confirmation dialog flow in `src/components/jobs/JobDetailCard.tsx` calling `DELETE /api/jobs/:id`
-- [ ] T047 [US6] Ensure list/calendar refresh or router refresh after edit/delete navigation back to `src/app/(app)/page.tsx`
+- [x] T043 [US6] Implement `GET /api/jobs/:id` and harden `PATCH`/`DELETE /api/jobs/:id` (phone rebind) in `backend/src/routes/jobs.ts` + `backend/src/services/jobService.ts`
+- [x] T044 [P] [US6] Build job detail/edit UI in `src/components/jobs/JobDetailCard.tsx` + `JobDetailCard.module.scss`
+- [x] T045 [US6] Implement page `src/app/(app)/jobs/[id]/page.tsx` loading job by id
+- [x] T046 [US6] Add delete confirmation dialog flow in `src/components/jobs/JobDetailCard.tsx` calling `DELETE /api/jobs/:id`
+- [x] T047 [US6] Ensure list/calendar refresh or router refresh after edit/delete navigation back to `src/app/(app)/page.tsx`
 
 **Checkpoint**: Full card CRUD complete (FR-014, FR-026–028, SC-010–011)
 

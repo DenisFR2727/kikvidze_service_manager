@@ -20,7 +20,8 @@ import {
 import { findOrCreateClient } from "../services/clientService.js";
 import { buildClientSearchFilter } from "../services/clientSearch.js";
 import {
-  applyStatusTransition,
+  applyJobPatch,
+  deleteJobById,
   getDisplayAt,
   matchesDisplayAtRange,
 } from "../services/jobService.js";
@@ -137,6 +138,13 @@ async function listJobsHandler(req: Request, res: Response): Promise<void> {
   res.status(200).json({ items });
 }
 
+async function getJobHandler(req: Request, res: Response): Promise<void> {
+  const { id } = req.params as JobIdParams;
+  const job = await requireJob(id);
+  const client = await requireClient(String(job.clientId));
+  res.status(200).json(serializeJob(job, client));
+}
+
 async function createJobHandler(req: Request, res: Response): Promise<void> {
   const body = req.body as CreateJobBody;
 
@@ -162,54 +170,18 @@ async function patchJobHandler(req: Request, res: Response): Promise<void> {
   const { id } = req.params as JobIdParams;
   const body = req.body as UpdateJobBody;
   const job = await requireJob(id);
+  const client = await requireClient(String(job.clientId));
 
-  let client = await requireClient(String(job.clientId));
-
-  if (body.phone !== undefined) {
-    const result = await findOrCreateClient({
-      phone: body.phone,
-      name: body.name,
-    });
-    client = result.client;
-    job.clientId = result.client._id;
-  } else if (body.name !== undefined) {
-    const trimmed = body.name?.trim() ?? "";
-    if (trimmed) {
-      client.name = trimmed;
-    } else {
-      client.name = undefined;
-    }
-    await client.save();
-  }
-
-  if (body.car !== undefined) {
-    job.car = body.car;
-  }
-  if (body.category !== undefined) {
-    job.category = body.category;
-  }
-  if (body.scheduledAt !== undefined) {
-    job.scheduledAt = body.scheduledAt;
-  }
-  if (body.workPrice !== undefined) {
-    job.workPrice = body.workPrice;
-  }
-  if (body.materialPrice !== undefined) {
-    job.materialPrice = body.materialPrice;
-  }
-
-  // Explicit completedAt before status so transition can still fill if null + done
-  if (body.completedAt !== undefined) {
-    job.completedAt = body.completedAt ?? undefined;
-  }
-
-  if (body.status !== undefined) {
-    applyStatusTransition(job, body.status);
-  }
-
+  const nextClient = await applyJobPatch(job, client, body);
   await job.save();
 
-  res.status(200).json(serializeJob(job, client));
+  res.status(200).json(serializeJob(job, nextClient));
+}
+
+async function deleteJobHandler(req: Request, res: Response): Promise<void> {
+  const { id } = req.params as JobIdParams;
+  await deleteJobById(id);
+  res.status(204).send();
 }
 
 export function createJobsRouter(): Router {
@@ -217,11 +189,21 @@ export function createJobsRouter(): Router {
 
   router.get("/", validateQuery(listJobsQuerySchema), listJobsHandler);
   router.post("/", validateBody(createJobBodySchema), createJobHandler);
+  router.get(
+    "/:id",
+    validateParams(jobIdParamsSchema),
+    getJobHandler,
+  );
   router.patch(
     "/:id",
     validateParams(jobIdParamsSchema),
     validateBody(updateJobBodySchema),
     patchJobHandler,
+  );
+  router.delete(
+    "/:id",
+    validateParams(jobIdParamsSchema),
+    deleteJobHandler,
   );
 
   return router;

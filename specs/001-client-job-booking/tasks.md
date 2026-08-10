@@ -100,7 +100,7 @@
 ### Implementation for User Story 2
 
 - [x] T027 [US2] Implement `GET /api/jobs` returning items with nested `client` + `displayAt` in `backend/src/routes/jobs.ts`
-- [ ] T028 [P] [US2] Build `JobList` in `src/components/jobs/JobList.tsx` + `JobList.module.scss`
+- [x] T028 [P] [US2] Build `JobList` in `src/components/jobs/JobList.tsx` + `JobList.module.scss`
 - [ ] T029 [P] [US2] Build week `JobCalendar` in `src/components/jobs/JobCalendar.tsx` + `JobCalendar.module.scss` (prev/next week)
 - [ ] T030 [US2] Add list/calendar view switcher state on `src/app/(app)/page.tsx` (default list per FR-029/030)
 - [ ] T031 [US2] Fetch jobs on home load and pass into list/calendar; link each item to `/jobs/[id]` in `src/app/(app)/page.tsx`

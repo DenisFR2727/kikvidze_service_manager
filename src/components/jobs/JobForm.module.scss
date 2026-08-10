@@ -1,0 +1,123 @@
+.panel {
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.title {
+  margin-bottom: var(--space-5);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.02em;
+  color: var(--color-fg);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.fieldFull {
+  grid-column: 1 / -1;
+}
+
+.label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-fg);
+}
+
+.required {
+  color: var(--color-danger);
+}
+
+.input {
+  width: 100%;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-fg);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.input:hover:not(:disabled) {
+  border-color: var(--color-border-strong);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.input:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.input[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
+.fieldError {
+  font-size: var(--text-sm);
+  color: var(--color-danger);
+}
+
+.formError {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-danger-subtle);
+  color: var(--color-danger);
+  font-size: var(--text-sm);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.submit {
+  padding: var(--space-3) var(--space-5);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: #fff;
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.submit:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+}
+
+.submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

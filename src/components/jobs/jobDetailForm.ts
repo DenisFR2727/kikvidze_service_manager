@@ -1,6 +1,7 @@
-import { parseNonNegativePrice, toDatetimeLocalValue } from "./jobFormShared.ts";
+import { toDatetimeLocalValue } from "./jobFormShared.ts";
+import { validateJobCoreFields } from "./jobFormValidation.ts";
 import { uk } from "../../lib/i18n/uk.ts";
-import type { Job, JobStatus, UpdateJobInput } from "../../lib/types";
+import type { Job, JobStatus, UpdateJobInput } from "../../lib/types.ts";
 
 export type DetailFieldKey =
   | "phone"
@@ -61,30 +62,11 @@ export function jobToFormState(job: Job): DetailFormState {
 export function validateDetailForm(
   form: DetailFormState,
 ): { payload?: UpdateJobInput; errors: DetailFieldErrors } {
-  const errors: DetailFieldErrors = {};
-  const nextPhone = form.phone.trim();
-  const nextCar = form.car.trim();
-  const nextCategory = form.category.trim();
-  const trimmedName = form.name.trim();
+  const { values, errors: coreErrors } = validateJobCoreFields(form, {
+    scheduledRequiredMessage: uk.job.scheduledRequiredDetail,
+  });
 
-  if (!nextPhone) {
-    errors.phone = uk.job.phoneRequired;
-  }
-  if (!nextCar) {
-    errors.car = uk.job.carRequired;
-  }
-  if (!nextCategory) {
-    errors.category = uk.job.categoryRequired;
-  }
-
-  if (!form.scheduledAtLocal) {
-    errors.scheduledAt = uk.job.scheduledRequiredDetail;
-  } else {
-    const scheduledDate = new Date(form.scheduledAtLocal);
-    if (Number.isNaN(scheduledDate.getTime())) {
-      errors.scheduledAt = uk.job.scheduledInvalid;
-    }
-  }
+  const errors: DetailFieldErrors = { ...coreErrors };
 
   let completedAt: string | null = null;
   if (form.completedAtLocal) {
@@ -96,34 +78,21 @@ export function validateDetailForm(
     }
   }
 
-  const work = parseNonNegativePrice(form.workPrice, uk.job.workPriceLabel);
-  if (!work.ok) {
-    errors.workPrice = work.error;
-  }
-
-  const material = parseNonNegativePrice(
-    form.materialPrice,
-    uk.job.materialPriceLabel,
-  );
-  if (!material.ok) {
-    errors.materialPrice = material.error;
-  }
-
-  if (Object.keys(errors).length > 0 || !work.ok || !material.ok) {
+  if (!values || Object.keys(errors).length > 0) {
     return { errors };
   }
 
   return {
-    errors,
+    errors: {},
     payload: {
-      phone: nextPhone,
-      name: trimmedName.length > 0 ? trimmedName : null,
-      car: nextCar,
-      category: nextCategory,
-      scheduledAt: new Date(form.scheduledAtLocal).toISOString(),
+      phone: values.phone,
+      name: values.nameTrimmed.length > 0 ? values.nameTrimmed : null,
+      car: values.car,
+      category: values.category,
+      scheduledAt: values.scheduledAt,
       completedAt,
-      workPrice: work.value,
-      materialPrice: material.value,
+      workPrice: values.workPrice,
+      materialPrice: values.materialPrice,
       status: form.status,
     },
   };

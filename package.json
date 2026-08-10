@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --experimental-strip-types --test src/components/jobs/JobCalendar/jobCalendarWeek.test.ts src/components/jobs/JobDetailCard/jobDetailForm.test.ts"
+    "test": "node --experimental-strip-types --test src/components/jobs/JobCalendar/jobCalendarWeek.test.ts src/components/jobs/JobDetailCard/jobDetailForm.test.ts src/components/jobs/JobFilters/jobFiltersQuery.test.ts src/components/jobs/JobForm/jobCreateForm.test.ts src/components/jobs/JobList/jobListFormat.test.ts"
   },
   "dependencies": {
     "next": "16.3.0",

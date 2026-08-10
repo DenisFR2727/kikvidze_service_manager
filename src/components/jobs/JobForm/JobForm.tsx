@@ -1,53 +1,29 @@
 "use client";
 
-import { useEffect, useId, useState, type FormEvent } from "react";
+import { useId, useState, type FormEvent } from "react";
 import { JobFormField } from "@/components/jobs/JobFormField";
 import {
+  EMPTY_CREATE_FORM,
+  emptyCreateForm,
+  validateCreateForm,
+  type CreateFieldErrors,
+  type CreateFieldKey,
+  type CreateFormState,
+} from "@/components/jobs/jobCreateForm";
+import {
   clearSuccessFeedback,
-  parseNonNegativePrice,
   type FormFeedback,
 } from "@/components/jobs/jobFormShared";
-import { ApiError, apiClient } from "@/lib/api-client";
+import { ApiError } from "@/lib/api-client";
 import { JOB_STATUS_LABELS, uk } from "@/lib/i18n/uk";
-import type { CreateJobInput, Job, ListResponse } from "@/lib/types";
+import type { CreateJobInput, Job } from "@/lib/types";
 import styles from "./JobForm.module.scss";
-
-type FieldKey =
-  | "phone"
-  | "name"
-  | "car"
-  | "category"
-  | "scheduledAt"
-  | "workPrice"
-  | "materialPrice";
-
-type FieldErrors = Partial<Record<FieldKey, string>>;
-
-type CreateFormState = {
-  phone: string;
-  name: string;
-  car: string;
-  category: string;
-  scheduledAtLocal: string;
-  workPrice: string;
-  materialPrice: string;
-};
-
-const EMPTY_FORM: CreateFormState = {
-  phone: "",
-  name: "",
-  car: "",
-  category: "",
-  scheduledAtLocal: "",
-  workPrice: "",
-  materialPrice: "",
-};
 
 export type JobFormProps = {
   /** Called with normalized create payload; return created job for success details. */
-  onSubmit: (values: CreateJobInput) => void | Promise<void | Job>;
-  /** Optional known categories for suggestions (FR-015); otherwise loaded from API. */
-  categories?: string[];
+  onSubmit: (values: CreateJobInput) => Promise<Job>;
+  /** Known categories for suggestions (FR-015). */
+  categories: string[];
   /** Called after a successful create so parents can refresh category lists. */
   onCreated?: (job: Job) => void;
 };
@@ -61,105 +37,19 @@ const fieldStyles = {
   fieldError: styles.fieldError,
 };
 
-function fieldId(key: FieldKey): string {
-  return `job-${key}`;
-}
-
-function validateCreateForm(
-  form: CreateFormState,
-): { payload?: CreateJobInput; errors: FieldErrors } {
-  const errors: FieldErrors = {};
-  const nextPhone = form.phone.trim();
-  const nextCar = form.car.trim();
-  const nextCategory = form.category.trim();
-  const trimmedName = form.name.trim();
-
-  if (!nextPhone) {
-    errors.phone = uk.job.phoneRequired;
-  }
-  if (!nextCar) {
-    errors.car = uk.job.carRequired;
-  }
-  if (!nextCategory) {
-    errors.category = uk.job.categoryRequired;
-  }
-
-  if (!form.scheduledAtLocal) {
-    errors.scheduledAt = uk.job.scheduledRequired;
-  } else {
-    const scheduledDate = new Date(form.scheduledAtLocal);
-    if (Number.isNaN(scheduledDate.getTime())) {
-      errors.scheduledAt = uk.job.scheduledInvalid;
-    }
-  }
-
-  const work = parseNonNegativePrice(form.workPrice, uk.job.workPriceLabel);
-  if (!work.ok) {
-    errors.workPrice = work.error;
-  }
-
-  const material = parseNonNegativePrice(
-    form.materialPrice,
-    uk.job.materialPriceLabel,
-  );
-  if (!material.ok) {
-    errors.materialPrice = material.error;
-  }
-
-  if (Object.keys(errors).length > 0 || !work.ok || !material.ok) {
-    return { errors };
-  }
-
-  return {
-    errors,
-    payload: {
-      phone: nextPhone,
-      name: trimmedName.length > 0 ? trimmedName : undefined,
-      car: nextCar,
-      category: nextCategory,
-      scheduledAt: new Date(form.scheduledAtLocal).toISOString(),
-      workPrice: work.value,
-      materialPrice: material.value,
-    },
-  };
-}
-
 export function JobForm({ onSubmit, categories, onCreated }: JobFormProps) {
-  const categoryListId = useId();
-  const [form, setForm] = useState<CreateFormState>(EMPTY_FORM);
-  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const idPrefix = useId();
+  const titleId = `${idPrefix}-title`;
+  const categoryListId = `${idPrefix}-category-list`;
+
+  function fieldId(key: CreateFieldKey): string {
+    return `${idPrefix}-${key}`;
+  }
+
+  const [form, setForm] = useState<CreateFormState>(() => emptyCreateForm());
+  const [fieldErrors, setFieldErrors] = useState<CreateFieldErrors>({});
   const [feedback, setFeedback] = useState<FormFeedback | null>(null);
   const [isPending, setIsPending] = useState(false);
-  const [loadedCategories, setLoadedCategories] = useState<string[]>([]);
-
-  const categoryOptions = categories ?? loadedCategories;
-
-  useEffect(() => {
-    if (categories !== undefined) {
-      return;
-    }
-
-    let cancelled = false;
-
-    async function loadCategories() {
-      try {
-        const data = await apiClient.get<ListResponse<string>>(
-          "/api/categories",
-        );
-        if (!cancelled) {
-          setLoadedCategories(data.items);
-        }
-      } catch {
-        // Suggestions are optional — form still works with free text.
-      }
-    }
-
-    void loadCategories();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [categories]);
 
   function updateField<K extends keyof CreateFormState>(
     key: K,
@@ -171,18 +61,10 @@ export function JobForm({ onSubmit, categories, onCreated }: JobFormProps) {
 
   function resetFormAfterSuccess(keepPhone: boolean) {
     setForm((current) => ({
-      ...EMPTY_FORM,
+      ...EMPTY_CREATE_FORM,
       phone: keepPhone ? current.phone : "",
     }));
     setFieldErrors({});
-  }
-
-  function buildSuccessMessage(job: Job): string {
-    return uk.job.saveSuccessDetail(
-      job.car,
-      job.category,
-      JOB_STATUS_LABELS[job.status],
-    );
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -200,39 +82,22 @@ export function JobForm({ onSubmit, categories, onCreated }: JobFormProps) {
     try {
       const result = await onSubmit(payload);
       resetFormAfterSuccess(true);
-
-      if (result && typeof result === "object" && "id" in result) {
-        setFeedback({
-          type: "success",
-          message: buildSuccessMessage(result),
-        });
-        onCreated?.(result);
-
-        if (categories === undefined) {
-          setLoadedCategories((current) => {
-            if (current.includes(result.category)) {
-              return current;
-            }
-            return [...current, result.category].sort((a, b) =>
-              a.localeCompare(b, "uk"),
-            );
-          });
-        }
-      } else {
-        setFeedback({
-          type: "success",
-          message: uk.job.saveSuccess,
-        });
-      }
+      setFeedback({
+        type: "success",
+        message: uk.job.saveSuccessDetail(
+          result.car,
+          result.category,
+          JOB_STATUS_LABELS[result.status],
+        ),
+      });
+      onCreated?.(result);
     } catch (err) {
       if (err instanceof ApiError && err.fields) {
         setFieldErrors((current) => ({ ...current, ...err.fields }));
       }
 
       const message =
-        err instanceof Error && err.message
-          ? err.message
-          : uk.job.createFailed;
+        err instanceof Error && err.message ? err.message : uk.job.createFailed;
       setFeedback({ type: "error", message });
     } finally {
       setIsPending(false);
@@ -240,8 +105,8 @@ export function JobForm({ onSubmit, categories, onCreated }: JobFormProps) {
   }
 
   return (
-    <section className={styles.panel} aria-labelledby="job-form-title">
-      <h2 id="job-form-title" className={styles.title}>
+    <section className={styles.panel} aria-labelledby={titleId}>
+      <h2 id={titleId} className={styles.title}>
         {uk.job.newTitle}
       </h2>
 
@@ -318,7 +183,7 @@ export function JobForm({ onSubmit, categories, onCreated }: JobFormProps) {
             }}
             afterInput={
               <datalist id={categoryListId}>
-                {categoryOptions.map((option) => (
+                {categories.map((option) => (
                   <option key={option} value={option} />
                 ))}
               </datalist>
@@ -338,8 +203,7 @@ export function JobForm({ onSubmit, categories, onCreated }: JobFormProps) {
               type: "datetime-local",
               value: form.scheduledAtLocal,
               disabled: isPending,
-              onChange: (e) =>
-                updateField("scheduledAtLocal", e.target.value),
+              onChange: (e) => updateField("scheduledAtLocal", e.target.value),
             }}
           />
 

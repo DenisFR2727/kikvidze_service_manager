@@ -1,8 +1,6 @@
+export { JobFilters, type JobFiltersProps } from "./JobFilters";
 export {
   EMPTY_JOB_FILTERS,
-  JobFilters,
-  hasActiveJobFilters,
   jobFiltersToQuery,
-  type JobFiltersProps,
   type JobFiltersValue,
-} from "./JobFilters";
+} from "./jobFiltersQuery";

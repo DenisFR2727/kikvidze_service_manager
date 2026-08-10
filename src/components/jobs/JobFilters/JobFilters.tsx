@@ -1,26 +1,15 @@
 "use client";
 
+import { useId } from "react";
 import { JOB_STATUS_LABELS, uk } from "@/lib/i18n/uk";
+import { JOB_STATUSES } from "@/lib/types";
 import {
-  JOB_STATUSES,
-  type JobStatus,
-  type JobsQuery,
-} from "@/lib/types";
+  hasActiveJobFilters,
+  parseFilterStatus,
+  withClampedDateRange,
+  type JobFiltersValue,
+} from "./jobFiltersQuery";
 import styles from "./JobFilters.module.scss";
-
-export type JobFiltersValue = {
-  status: JobStatus | "";
-  from: string;
-  to: string;
-  category: string;
-};
-
-export const EMPTY_JOB_FILTERS: JobFiltersValue = {
-  status: "",
-  from: "",
-  to: "",
-  category: "",
-};
 
 export type JobFiltersProps = {
   value: JobFiltersValue;
@@ -30,32 +19,6 @@ export type JobFiltersProps = {
   disabled?: boolean;
 };
 
-/** Convert panel state to API query (local day bounds for date inputs). */
-export function jobFiltersToQuery(value: JobFiltersValue): JobsQuery {
-  const query: JobsQuery = {};
-
-  if (value.status) {
-    query.status = value.status;
-  }
-  if (value.from) {
-    query.from = new Date(`${value.from}T00:00:00`).toISOString();
-  }
-  if (value.to) {
-    query.to = new Date(`${value.to}T23:59:59.999`).toISOString();
-  }
-  if (value.category.trim()) {
-    query.category = value.category.trim();
-  }
-
-  return query;
-}
-
-export function hasActiveJobFilters(value: JobFiltersValue): boolean {
-  return Boolean(
-    value.status || value.from || value.to || value.category.trim(),
-  );
-}
-
 export function JobFilters({
   value,
   categories,
@@ -63,16 +26,27 @@ export function JobFilters({
   onReset,
   disabled = false,
 }: JobFiltersProps) {
+  const idPrefix = useId();
+  const titleId = `${idPrefix}-title`;
+  const statusId = `${idPrefix}-status`;
+  const categoryId = `${idPrefix}-category`;
+  const fromId = `${idPrefix}-from`;
+  const toId = `${idPrefix}-to`;
+
   function patch(partial: Partial<JobFiltersValue>) {
+    if (partial.from !== undefined || partial.to !== undefined) {
+      onChange(withClampedDateRange(value, partial));
+      return;
+    }
     onChange({ ...value, ...partial });
   }
 
   const active = hasActiveJobFilters(value);
 
   return (
-    <section className={styles.panel} aria-labelledby="job-filters-title">
+    <section className={styles.panel} aria-labelledby={titleId}>
       <div className={styles.header}>
-        <h2 id="job-filters-title" className={styles.title}>
+        <h2 id={titleId} className={styles.title}>
           {uk.job.filtersTitle}
         </h2>
         <button
@@ -87,16 +61,16 @@ export function JobFilters({
 
       <div className={styles.grid}>
         <div className={styles.field}>
-          <label className={styles.label} htmlFor="job-filter-status">
+          <label className={styles.label} htmlFor={statusId}>
             {uk.job.status}
           </label>
           <select
-            id="job-filter-status"
+            id={statusId}
             className={styles.input}
             value={value.status}
             disabled={disabled}
             onChange={(e) =>
-              patch({ status: e.target.value as JobStatus | "" })
+              patch({ status: parseFilterStatus(e.target.value) })
             }
           >
             <option value="">{uk.job.allStatuses}</option>
@@ -109,11 +83,11 @@ export function JobFilters({
         </div>
 
         <div className={styles.field}>
-          <label className={styles.label} htmlFor="job-filter-category">
+          <label className={styles.label} htmlFor={categoryId}>
             {uk.job.categoryFilter}
           </label>
           <select
-            id="job-filter-category"
+            id={categoryId}
             className={styles.input}
             value={value.category}
             disabled={disabled}
@@ -129,25 +103,26 @@ export function JobFilters({
         </div>
 
         <div className={styles.field}>
-          <label className={styles.label} htmlFor="job-filter-from">
+          <label className={styles.label} htmlFor={fromId}>
             {uk.job.dateFrom}
           </label>
           <input
-            id="job-filter-from"
+            id={fromId}
             className={styles.input}
             type="date"
             value={value.from}
             disabled={disabled}
+            max={value.to || undefined}
             onChange={(e) => patch({ from: e.target.value })}
           />
         </div>
 
         <div className={styles.field}>
-          <label className={styles.label} htmlFor="job-filter-to">
+          <label className={styles.label} htmlFor={toId}>
             {uk.job.dateTo}
           </label>
           <input
-            id="job-filter-to"
+            id={toId}
             className={styles.input}
             type="date"
             value={value.to}

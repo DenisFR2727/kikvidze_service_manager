@@ -1,68 +1,61 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { JobStatusSelect } from "@/components/jobs/JobStatusSelect";
-import { JOB_STATUS_LABELS, uk } from "@/lib/i18n/uk";
+import { uk } from "@/lib/i18n/uk";
 import type { Job, JobStatus } from "@/lib/types";
+import {
+  formatClient,
+  formatDisplayAt,
+  formatPrice,
+} from "./jobListFormat";
 import styles from "./JobList.module.scss";
 
 export type JobListProps = {
   jobs: Job[];
-  onStatusChange?: (jobId: string, status: JobStatus) => void | Promise<Job>;
+  onStatusChange: (jobId: string, status: JobStatus) => Promise<Job>;
 };
 
-function formatDisplayAt(iso: string): string {
-  return new Intl.DateTimeFormat("uk-UA", {
-    dateStyle: "short",
-    timeStyle: "short",
-  }).format(new Date(iso));
-}
-
-function formatPrice(value: number): string {
-  return new Intl.NumberFormat("uk-UA", {
-    maximumFractionDigits: 0,
-  }).format(value);
-}
-
-function formatClient(job: Job): string {
-  const { phone, name } = job.client;
-  return name?.trim() ? `${phone} · ${name.trim()}` : phone;
-}
-
 export function JobList({ jobs, onStatusChange }: JobListProps) {
-  const [pendingId, setPendingId] = useState<string | null>(null);
-  const [rowError, setRowError] = useState<{
-    jobId: string;
-    message: string;
-  } | null>(null);
+  const titleId = useId();
+  const [pendingIds, setPendingIds] = useState<Record<string, true>>({});
+  const [rowErrors, setRowErrors] = useState<Record<string, string>>({});
 
   async function handleStatusChange(jobId: string, status: JobStatus) {
-    if (!onStatusChange) {
-      return;
-    }
-
-    setPendingId(jobId);
-    setRowError(null);
+    setPendingIds((current) => ({ ...current, [jobId]: true }));
+    setRowErrors((current) => {
+      if (!(jobId in current)) {
+        return current;
+      }
+      const next = { ...current };
+      delete next[jobId];
+      return next;
+    });
 
     try {
       await onStatusChange(jobId, status);
     } catch (err) {
-      setRowError({
-        jobId,
-        message:
-          err instanceof Error
-            ? err.message
-            : uk.job.statusChangeFailed,
-      });
+      setRowErrors((current) => ({
+        ...current,
+        [jobId]:
+          err instanceof Error ? err.message : uk.job.statusChangeFailed,
+      }));
     } finally {
-      setPendingId(null);
+      setPendingIds((current) => {
+        if (!(jobId in current)) {
+          return current;
+        }
+        const next = { ...current };
+        delete next[jobId];
+        return next;
+      });
     }
   }
 
   return (
-    <section className={styles.panel} aria-labelledby="job-list-title">
-      <h2 id="job-list-title" className={styles.title}>
+    <section className={styles.panel} aria-labelledby={titleId}>
+      <h2 id={titleId} className={styles.title}>
         {uk.job.listTitle}
       </h2>
 
@@ -92,19 +85,13 @@ export function JobList({ jobs, onStatusChange }: JobListProps) {
                 </Link>
 
                 <div className={styles.aside}>
-                  {onStatusChange ? (
-                    <JobStatusSelect
-                      key={`${job.id}-${job.status}`}
-                      value={job.status}
-                      disabled={pendingId === job.id}
-                      aria-label={`${uk.job.status}: ${formatClient(job)}`}
-                      onChange={(status) => handleStatusChange(job.id, status)}
-                    />
-                  ) : (
-                    <span className={styles.datetime}>
-                      {JOB_STATUS_LABELS[job.status]}
-                    </span>
-                  )}
+                  <JobStatusSelect
+                    key={`${job.id}-${job.status}`}
+                    value={job.status}
+                    disabled={Boolean(pendingIds[job.id])}
+                    aria-label={`${uk.job.status}: ${formatClient(job)}`}
+                    onChange={(status) => handleStatusChange(job.id, status)}
+                  />
                   <time
                     className={styles.datetime}
                     dateTime={job.displayAt}
@@ -113,9 +100,9 @@ export function JobList({ jobs, onStatusChange }: JobListProps) {
                   </time>
                 </div>
 
-                {rowError?.jobId === job.id ? (
+                {rowErrors[job.id] ? (
                   <p className={styles.rowError} role="alert">
-                    {rowError.message}
+                    {rowErrors[job.id]}
                   </p>
                 ) : null}
               </div>

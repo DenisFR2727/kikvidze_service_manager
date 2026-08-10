@@ -18,11 +18,13 @@ import {
   type UpdateJobBody,
 } from "../schemas/jobSchemas.js";
 import { findOrCreateClient } from "../services/clientService.js";
+import { buildClientSearchFilter } from "../services/clientSearch.js";
 import {
   applyStatusTransition,
   getDisplayAt,
   matchesDisplayAtRange,
 } from "../services/jobService.js";
+import { escapeRegex } from "../utils/escapeRegex.js";
 
 type Timestamps = {
   createdAt?: Date;
@@ -96,6 +98,26 @@ async function listJobsHandler(req: Request, res: Response): Promise<void> {
   }
   if (query.category) {
     filter.category = query.category;
+  }
+  if (query.clientId) {
+    filter.clientId = query.clientId;
+  }
+
+  if (query.q) {
+    const q = query.q.trim();
+    const searchOr: Record<string, unknown>[] = [
+      { car: { $regex: escapeRegex(q), $options: "i" } },
+    ];
+
+    const matchingClients = await Client.find(buildClientSearchFilter(q))
+      .select("_id")
+      .exec();
+    const clientIds = matchingClients.map((client) => client._id);
+    if (clientIds.length > 0) {
+      searchOr.push({ clientId: { $in: clientIds } });
+    }
+
+    filter.$or = searchOr;
   }
 
   const jobs = await Job.find(filter).sort({ scheduledAt: -1 }).exec();

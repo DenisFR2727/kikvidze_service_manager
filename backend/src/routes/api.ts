@@ -2,6 +2,7 @@ import { Router } from "express";
 import { requireAuth } from "../middleware/auth.js";
 import { createAuthRouter } from "./auth.js";
 import { createCategoriesRouter } from "./categories.js";
+import { createClientsRouter } from "./clients.js";
 import { createJobsRouter } from "./jobs.js";
 
 /**
@@ -21,6 +22,7 @@ export function createApiRouter(): Router {
   api.use(requireAuth);
 
   api.use("/jobs", createJobsRouter());
+  api.use("/clients", createClientsRouter());
   api.use("/categories", createCategoriesRouter());
 
   return api;

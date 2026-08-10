@@ -151,9 +151,9 @@
 
 ### Implementation for User Story 5
 
-- [ ] T040 [US5] Extend `GET /api/jobs?q=` and implement `GET /api/clients?q=` in `backend/src/routes/jobs.ts` and `backend/src/routes/clients.ts`
-- [ ] T041 [P] [US5] Build search input UI in `src/components/jobs/JobSearch.tsx` + `JobSearch.module.scss`
-- [ ] T042 [US5] Integrate search with home refetch in `src/app/(app)/page.tsx`
+- [x] T040 [US5] Extend `GET /api/jobs?q=` and implement `GET /api/clients?q=` in `backend/src/routes/jobs.ts` and `backend/src/routes/clients.ts`
+- [x] T041 [P] [US5] Build search input UI in `src/components/jobs/JobSearch.tsx` + `JobSearch.module.scss`
+- [x] T042 [US5] Integrate search with home refetch in `src/app/(app)/page.tsx`
 
 **Checkpoint**: Search works (FR-011–012, SC-003)
 

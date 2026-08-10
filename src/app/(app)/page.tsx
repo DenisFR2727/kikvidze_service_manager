@@ -10,20 +10,35 @@ import {
 } from "@/components/jobs/JobFilters";
 import { JobForm } from "@/components/jobs/JobForm";
 import { JobList } from "@/components/jobs/JobList";
+import { JobSearch } from "@/components/jobs/JobSearch";
 import { ApiError, apiClient } from "@/lib/api-client";
 import type {
   CreateJobInput,
   Job,
+  JobsQuery,
   JobStatus,
   ListResponse,
 } from "@/lib/types";
 
 type HomeView = "list" | "calendar";
 
+function buildJobsQuery(
+  filters: JobFiltersValue,
+  search: string,
+): JobsQuery {
+  const query = jobFiltersToQuery(filters);
+  const trimmed = search.trim();
+  if (trimmed) {
+    query.q = trimmed;
+  }
+  return query;
+}
+
 export default function HomePage() {
   const [view, setView] = useState<HomeView>("list");
   const [jobs, setJobs] = useState<Job[]>([]);
   const [filters, setFilters] = useState<JobFiltersValue>(EMPTY_JOB_FILTERS);
+  const [search, setSearch] = useState("");
   const [categories, setCategories] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -33,9 +48,12 @@ export default function HomePage() {
     setCategories(data.items);
   }
 
-  async function fetchJobs(nextFilters: JobFiltersValue): Promise<void> {
+  async function fetchJobs(
+    nextFilters: JobFiltersValue,
+    nextSearch: string,
+  ): Promise<void> {
     const data = await apiClient.get<ListResponse<Job>>("/api/jobs", {
-      query: jobFiltersToQuery(nextFilters),
+      query: buildJobsQuery(nextFilters, nextSearch),
     });
     setJobs(data.items);
   }
@@ -71,7 +89,7 @@ export default function HomePage() {
 
       try {
         const data = await apiClient.get<ListResponse<Job>>("/api/jobs", {
-          query: jobFiltersToQuery(filters),
+          query: buildJobsQuery(filters, search),
         });
         if (!cancelled) {
           setJobs(data.items);
@@ -96,12 +114,12 @@ export default function HomePage() {
     return () => {
       cancelled = true;
     };
-  }, [filters]);
+  }, [filters, search]);
 
   async function handleCreateJob(values: CreateJobInput): Promise<Job> {
     const created = await apiClient.post<Job>("/api/jobs", values);
     try {
-      await fetchJobs(filters);
+      await fetchJobs(filters, search);
       setLoadError(null);
     } catch {
       setJobs((current) => [created, ...current]);
@@ -161,6 +179,8 @@ export default function HomePage() {
         onSubmit={handleCreateJob}
         onCreated={handleJobCreated}
       />
+
+      <JobSearch value={search} onChange={setSearch} disabled={isLoading} />
 
       <JobFilters
         value={filters}

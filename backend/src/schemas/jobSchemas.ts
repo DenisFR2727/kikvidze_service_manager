@@ -72,8 +72,9 @@ function emptyToUndefined(value: unknown): unknown {
 }
 
 /**
- * Query for `GET /api/jobs` (Phase 7 filters).
+ * Query for `GET /api/jobs`.
  * `from` / `to` bound the relevant date (`displayAt`); both inclusive.
+ * `q` = partial match on phone / client name / car.
  */
 export const listJobsQuerySchema = z
   .object({
@@ -83,6 +84,15 @@ export const listJobsQuerySchema = z
     category: z.preprocess(
       emptyToUndefined,
       z.string().trim().min(1).optional(),
+    ),
+    q: z.preprocess(emptyToUndefined, z.string().trim().min(1).optional()),
+    clientId: z.preprocess(
+      emptyToUndefined,
+      z
+        .string()
+        .trim()
+        .regex(/^[a-fA-F0-9]{24}$/, "Invalid client id")
+        .optional(),
     ),
   })
   .refine(

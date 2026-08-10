@@ -7,6 +7,8 @@
   --color-surface: #ffffff;
   --color-fg: #1a2332;
   --color-fg-muted: #5c6b7a;
+  /* Keep fill in sync with --color-fg-muted (#5c6b7a). */
+  --icon-chevron-muted: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235c6b7a' d='M3 4.5 6 8l3-3.5'/%3E%3C/svg%3E");
   --color-border: #d0d7de;
   --color-border-strong: #9aa8b5;
   --color-accent: #0f6e6a;

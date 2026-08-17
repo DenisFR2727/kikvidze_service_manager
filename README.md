@@ -27,24 +27,8 @@ cd ..
 
 На macOS/Linux: `cp` замість `copy`.
 
-Переконайся, що MongoDB запущена і `MONGODB_URI` у `backend/.env` коректний.
-
 **`backend/.env`** (приклад з quickstart):
 
-```env
-PORT=4000
-MONGODB_URI=mongodb://127.0.0.1:27017/kikvidze_service_manager
-ADMIN_LOGIN=admin
-ADMIN_PASSWORD=change-me
-SESSION_SECRET=dev-secret-min-32-chars!!!!!!!!!!!!
-CORS_ORIGIN=http://localhost:3000
-```
-
-**Root `.env.local`**:
-
-```env
-NEXT_PUBLIC_API_URL=http://localhost:4000
-```
 
 ### 2. Install
 

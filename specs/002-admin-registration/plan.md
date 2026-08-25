@@ -92,7 +92,7 @@ backend/
 │   ├── routes/jobs.ts            # scope by adminId
 │   ├── routes/categories.ts      # distinct categories for session admin only
 │   ├── services/
-│   │   ├── seedAdmin.ts          # retire / make optional migration helper
+│   │   ├── migrateOwnership.ts   # one-time orphan adminId assignment
 │   │   ├── clientService.ts      # admin-scoped find-or-create
 │   │   └── jobService.ts         # set adminId on create; filter on read/update/delete
 │   ├── middleware/auth.ts        # already exposes adminId — reuse

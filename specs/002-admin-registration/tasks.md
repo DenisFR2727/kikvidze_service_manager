@@ -118,9 +118,9 @@
 
 **Purpose**: Docs alignment and end-to-end validation
 
-- [ ] T024 [P] Align any remaining docs (`README.md`, comments in `backend/src/routes/api.ts`) with register + ownership contracts
-- [ ] T025 Run manual validation scenarios from `specs/002-admin-registration/quickstart.md` (register A/B, isolation, fake credentials fail, nav links)
-- [ ] T026 [P] Remove dead references to `ADMIN_LOGIN`/`ADMIN_PASSWORD`/`seedAdmin` from codebase search (env examples, comments, unused imports)
+- [x] T024 [P] Align any remaining docs (`README.md`, comments in `backend/src/routes/api.ts`) with register + ownership contracts
+- [x] T025 Run manual validation scenarios from `specs/002-admin-registration/quickstart.md` (register A/B, isolation, fake credentials fail, nav links)
+- [x] T026 [P] Remove dead references to `ADMIN_LOGIN`/`ADMIN_PASSWORD`/`seedAdmin` from codebase search (env examples, comments, unused imports)
 
 ---
 

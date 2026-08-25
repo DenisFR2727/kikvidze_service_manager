@@ -11,13 +11,12 @@
 
 ## Environment
 
-**`backend/.env`** (see `.env.example` when added in implementation):
+**`backend/.env`** (see `backend/.env.example`). Admins are **not** seeded from env —
+register via UI or `POST /api/auth/register` (see [`002-admin-registration/quickstart.md`](../002-admin-registration/quickstart.md)):
 
 ```env
 PORT=4000
 MONGODB_URI=mongodb://127.0.0.1:27017/kikvidze_service_manager
-ADMIN_LOGIN=admin
-ADMIN_PASSWORD=change-me
 SESSION_SECRET=dev-secret-min-32-chars!!!!!!!!!!!!
 CORS_ORIGIN=http://localhost:3000
 ```
@@ -53,11 +52,12 @@ Data model: [data-model.md](./data-model.md)
 ### 1. Auth gate
 
 1. Open http://localhost:3000 while logged out → login screen only (no job data).
-2. Wrong password → error message, stay on login.
-3. Correct `ADMIN_LOGIN` / `ADMIN_PASSWORD` → home with **list** view by default.
-4. Logout → back to login; refresh does not show jobs.
+2. Register an admin (link «Зареєструватися») or log in with an existing registered account.
+3. Wrong password → error message, stay on login.
+4. Correct registered credentials → home with **list** view by default.
+5. Logout → back to login; refresh does not show jobs.
 
-**Expect**: SC-008, SC-009, FR-018–022.
+**Expect**: SC-008, SC-009, FR-018–022. Registration details: feature `002-admin-registration`.
 
 ### 2. Create job + client upsert
 
@@ -104,10 +104,10 @@ Data model: [data-model.md](./data-model.md)
 ## API smoke (optional, curl)
 
 ```bash
-# Login (save cookie jar)
+# Register (or login if the admin already exists)
 curl -c cookies.txt -H "Content-Type: application/json" \
-  -d "{\"login\":\"admin\",\"password\":\"change-me\"}" \
-  http://localhost:4000/api/auth/login
+  -d "{\"login\":\"admin\",\"password\":\"password1\"}" \
+  http://localhost:4000/api/auth/register
 
 # Create job
 curl -b cookies.txt -H "Content-Type: application/json" \

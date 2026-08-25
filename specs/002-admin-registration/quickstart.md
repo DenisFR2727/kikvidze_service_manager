@@ -107,7 +107,7 @@ curl -b cookies.txt http://localhost:4000/api/jobs
 
 ## Done when
 
-- [ ] Two admins can register and log in with distinct credentials
-- [ ] Old seed-only login path is gone
-- [ ] Each admin sees only own clients/jobs
-- [ ] Same phone allowed for different admins without merging data
+- [x] Two admins can register and log in with distinct credentials
+- [x] Old seed-only login path is gone
+- [x] Each admin sees only own clients/jobs
+- [x] Same phone allowed for different admins without merging data

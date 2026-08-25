@@ -25,7 +25,7 @@ Job.category (string) ──► derived Category list (distinct, not a table)
 | `updatedAt` | Date | yes | |
 
 **Rules**:
-- Рівно один активний адмін у v1 (seed при старті, якщо колекція порожня — з `ADMIN_LOGIN` / `ADMIN_PASSWORD` env).
+- ~~Рівно один активний адмін у v1 (seed при старті з `ADMIN_LOGIN` / `ADMIN_PASSWORD`)~~ — superseded by [`002-admin-registration`](../002-admin-registration/data-model.md): self-registration, multi-admin, no env seed.
 - Пароль ніколи не повертається API.
 
 ### Client

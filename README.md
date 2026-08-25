@@ -13,7 +13,7 @@
 
 Див. також:
 
-- [`specs/001-client-job-booking/quickstart.md`](./specs/001-client-job-booking/quickstart.md) — роботи / клієнти
+- [`specs/001-client-job-booking/quickstart.md`](./specs/001-client-job-booking/quickstart.md) — роботи / клієнти (auth: через реєстрацію, див. 002)
 - [`specs/002-admin-registration/quickstart.md`](./specs/002-admin-registration/quickstart.md) — реєстрація адміна та ізоляція даних
 
 ### 1. Env

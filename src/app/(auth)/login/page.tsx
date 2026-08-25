@@ -17,8 +17,11 @@ export default function LoginPage() {
       if (err instanceof ApiError && err.isUnauthorized) {
         throw new Error(uk.auth.invalidCredentials);
       }
+      if (err instanceof ApiError && err.code === "NETWORK") {
+        throw new Error(uk.auth.loginFailed);
+      }
       if (err instanceof ApiError) {
-        throw new Error(err.message || uk.auth.loginFailed);
+        throw new Error(uk.auth.loginFailed);
       }
       throw err;
     }
@@ -30,6 +33,7 @@ export default function LoginPage() {
   return (
     <div className="login">
       <h1 className="login__title">{uk.auth.title}</h1>
+      <p className="login__subtitle">{uk.auth.loginSubtitle}</p>
       <LoginForm onSubmit={handleLogin} />
     </div>
   );

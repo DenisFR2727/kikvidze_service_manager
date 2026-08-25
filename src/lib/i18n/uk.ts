@@ -23,6 +23,8 @@ export const uk = {
   },
   auth: {
     title: "Вхід",
+    loginSubtitle:
+      "Увійдіть логіном і паролем зареєстрованого адміна. Спільних паролів за замовчуванням немає.",
     registerTitle: "Реєстрація",
     login: "Логін",
     password: "Пароль",
@@ -33,6 +35,7 @@ export const uk = {
     registerSubmitting: "Реєстрація…",
     logout: "Вийти",
     loggingOut: "Вихід…",
+    checkingSession: "Перевірка сесії…",
     loginRequired: "Вкажіть логін",
     passwordRequired: "Вкажіть пароль",
     passwordConfirmRequired: "Підтвердіть пароль",

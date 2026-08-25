@@ -72,9 +72,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T013 [US2] Verify/adjust `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me` in `backend/src/routes/auth.ts` so login only matches `Admin` collection (no env bypass); keep existing cookie session behavior
-- [ ] T014 [US2] Confirm `AuthGate` / `(app)` protection still redirects unauthenticated users to `/login` via `src/components/auth/AuthGate.tsx` and `src/app/(app)/layout.tsx`; ensure logout in `src/components/auth/LogoutButton.tsx` clears access
-- [ ] T015 [P] [US2] Polish login copy/errors in `src/app/(auth)/login/page.tsx` and `src/lib/i18n/uk.ts` so UX assumes registered accounts only (no hint of default `admin`/`change-me`)
+- [x] T013 [US2] Verify/adjust `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me` in `backend/src/routes/auth.ts` so login only matches `Admin` collection (no env bypass); keep existing cookie session behavior
+- [x] T014 [US2] Confirm `AuthGate` / `(app)` protection still redirects unauthenticated users to `/login` via `src/components/auth/AuthGate.tsx` and `src/app/(app)/layout.tsx`; ensure logout in `src/components/auth/LogoutButton.tsx` clears access
+- [x] T015 [P] [US2] Polish login copy/errors in `src/app/(auth)/login/page.tsx` and `src/lib/i18n/uk.ts` so UX assumes registered accounts only (no hint of default `admin`/`change-me`)
 
 **Checkpoint**: Real session auth only (FR-004–007, SC-002, SC-006)
 

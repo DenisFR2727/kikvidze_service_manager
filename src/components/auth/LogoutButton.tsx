@@ -6,6 +6,10 @@ import { LOGIN_PATH, logout } from "@/lib/auth";
 import { uk } from "@/lib/i18n/uk";
 import styles from "./LogoutButton.module.scss";
 
+/**
+ * Clears the API session cookie and leaves the authenticated shell.
+ * Always navigates to login so the app gate cannot show job data afterward.
+ */
 export function LogoutButton() {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);

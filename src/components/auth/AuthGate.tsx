@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getMe, LOGIN_PATH } from "@/lib/auth";
+import { uk } from "@/lib/i18n/uk";
 import styles from "./AuthGate.module.scss";
 
 type AuthGateProps = {
@@ -11,7 +12,8 @@ type AuthGateProps = {
 
 /**
  * Client gate: session cookie lives on the API origin, so auth must be
- * checked in the browser. Redirects to `/login` when `getMe` returns 401/null.
+ * checked in the browser. Redirects to `/login` when `getMe` returns 401/null
+ * (no registered-admin session).
  */
 export function AuthGate({ children }: AuthGateProps) {
   const router = useRouter();
@@ -27,12 +29,14 @@ export function AuthGate({ children }: AuthGateProps) {
           return;
         }
         if (!admin) {
+          setAuthenticated(false);
           router.replace(LOGIN_PATH);
           return;
         }
         setAuthenticated(true);
       } catch {
         if (!cancelled) {
+          setAuthenticated(false);
           router.replace(LOGIN_PATH);
         }
       }
@@ -48,7 +52,7 @@ export function AuthGate({ children }: AuthGateProps) {
   if (!authenticated) {
     return (
       <div className={styles.pending} aria-busy="true" aria-live="polite">
-        <p className={styles.pendingText}>Перевірка сесії…</p>
+        <p className={styles.pendingText}>{uk.auth.checkingSession}</p>
       </div>
     );
   }

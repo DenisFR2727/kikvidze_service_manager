@@ -76,6 +76,10 @@ async function registerHandler(req: Request, res: Response): Promise<void> {
   });
 }
 
+/**
+ * Authenticate against registered `Admin` documents only.
+ * Env / seed credentials are never consulted (FR-004).
+ */
 async function loginHandler(req: Request, res: Response): Promise<void> {
   const { login, password } = req.body as LoginBody;
 
@@ -103,21 +107,28 @@ function logoutHandler(req: Request, res: Response): void {
   res.status(200).json({ ok: true });
 }
 
-function meHandler(req: Request, res: Response): void {
+/** Session is valid only while the Admin document still exists. */
+async function meHandler(req: Request, res: Response): Promise<void> {
   const session = getAdminSession(req);
   if (!session) {
     throw new AppError("UNAUTHORIZED", "Authentication required");
   }
 
+  const admin = await Admin.findById(session.adminId).select("login").exec();
+  if (!admin) {
+    clearAdminSession(req);
+    throw new AppError("UNAUTHORIZED", "Authentication required");
+  }
+
   res.status(200).json({
-    admin: { login: session.login },
+    admin: { login: admin.login },
   });
 }
 
 /**
  * Auth routes:
  * - `POST /register`, `POST /login`, `POST /logout` — public
- * - `GET /me` — requires session (`requireAuth`)
+ * - `GET /me` — requires session (`requireAuth`) + existing Admin row
  */
 export function createAuthRouter(): Router {
   const router = Router();

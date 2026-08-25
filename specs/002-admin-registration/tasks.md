@@ -107,8 +107,8 @@
 
 ### Implementation for User Story 4
 
-- [ ] T022 [P] [US4] Add «Зареєструватися» link to `/register` on `src/app/(auth)/login/page.tsx` and/or `src/components/auth/LoginForm.tsx` using `uk` strings
-- [ ] T023 [P] [US4] Add «Увійти» link to `/login` on `src/app/(auth)/register/page.tsx` and/or `src/components/auth/RegisterForm.tsx` using `uk` strings
+- [x] T022 [P] [US4] Add «Зареєструватися» link to `/register` on `src/app/(auth)/login/page.tsx` and/or `src/components/auth/LoginForm.tsx` using `uk` strings
+- [x] T023 [P] [US4] Add «Увійти» link to `/login` on `src/app/(auth)/register/page.tsx` and/or `src/components/auth/RegisterForm.tsx` using `uk` strings
 
 **Checkpoint**: FR-012 satisfied
 

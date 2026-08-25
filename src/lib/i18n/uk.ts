@@ -33,6 +33,8 @@ export const uk = {
     submitting: "Вхід…",
     registerSubmit: "Зареєструватися",
     registerSubmitting: "Реєстрація…",
+    toRegister: "Зареєструватися",
+    toLogin: "Увійти",
     logout: "Вийти",
     loggingOut: "Вихід…",
     checkingSession: "Перевірка сесії…",

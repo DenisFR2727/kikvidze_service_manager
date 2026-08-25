@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { RegisterForm } from "@/components/auth/RegisterForm";
 import { ApiError } from "@/lib/api-client";
@@ -38,6 +39,9 @@ export default function RegisterPage() {
     <div className="login">
       <h1 className="login__title">{uk.auth.registerTitle}</h1>
       <RegisterForm onSubmit={handleRegister} />
+      <p className="login__nav">
+        <Link href="/login">{uk.auth.toLogin}</Link>
+      </p>
     </div>
   );
 }

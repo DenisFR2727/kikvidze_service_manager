@@ -136,6 +136,23 @@ textarea {
   text-align: center;
 }
 
+.login__nav {
+  margin: var(--space-5) 0 0;
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+.login__nav a {
+  color: var(--color-accent);
+  font-weight: var(--weight-medium);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.login__nav a:hover {
+  color: var(--color-accent-hover);
+}
+
 /* —— Home (list / calendar) —— */
 
 .home {

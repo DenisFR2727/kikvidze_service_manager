@@ -1,5 +1,5 @@
 /**
- * Unauthenticated auth shell (login).
+ * Unauthenticated auth shell (login / register).
  */
 export default function AuthLayout({
   children,

@@ -54,11 +54,11 @@
 
 ### Implementation for User Story 1
 
-- [ ] T008 [US1] Add Zod register body schema and `POST /api/auth/register` handler in `backend/src/routes/auth.ts` (trim login, password min 8, bcrypt hash, `409 CONFLICT` on duplicate login, `201` + `setAdminSession` auto-login) per `specs/002-admin-registration/contracts/api.md`
-- [ ] T009 [P] [US1] Add `RegisterRequest` / response types in `src/lib/types.ts` and `register()` helper in `src/lib/auth.ts`
-- [ ] T010 [P] [US1] Add Ukrainian register/validation/error strings in `src/lib/i18n/uk.ts` (`uk.auth.register*` / conflict / weak password)
-- [ ] T011 [US1] Build `RegisterForm` (login, password, passwordConfirm) in `src/components/auth/RegisterForm.tsx` (+ SCSS module if matching `LoginForm` pattern)
-- [ ] T012 [US1] Add register page `src/app/(auth)/register/page.tsx` wired to `register()` → `router.replace(APP_HOME_PATH)` on success; map API errors to `uk` messages
+- [x] T008 [US1] Add Zod register body schema and `POST /api/auth/register` handler in `backend/src/routes/auth.ts` (trim login, password min 8, bcrypt hash, `409 CONFLICT` on duplicate login, `201` + `setAdminSession` auto-login) per `specs/002-admin-registration/contracts/api.md`
+- [x] T009 [P] [US1] Add `RegisterRequest` / response types in `src/lib/types.ts` and `register()` helper in `src/lib/auth.ts`
+- [x] T010 [P] [US1] Add Ukrainian register/validation/error strings in `src/lib/i18n/uk.ts` (`uk.auth.register*` / conflict / weak password)
+- [x] T011 [US1] Build `RegisterForm` (login, password, passwordConfirm) in `src/components/auth/RegisterForm.tsx` (+ SCSS module if matching `LoginForm` pattern)
+- [x] T012 [US1] Add register page `src/app/(auth)/register/page.tsx` wired to `register()` → `router.replace(APP_HOME_PATH)` on success; map API errors to `uk` messages
 
 **Checkpoint**: Can create a real admin and enter the app without env seed (FR-001–003, SC-001/005) — **MVP**
 

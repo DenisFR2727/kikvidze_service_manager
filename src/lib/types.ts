@@ -102,7 +102,18 @@ export type LoginRequest = {
   password: string;
 };
 
+/** Same credentials shape as login; UI may also collect passwordConfirm locally. */
+export type RegisterRequest = {
+  login: string;
+  password: string;
+};
+
 export type LoginResponse = {
+  ok: true;
+  admin: Admin;
+};
+
+export type RegisterResponse = {
   ok: true;
   admin: Admin;
 };

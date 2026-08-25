@@ -5,12 +5,17 @@ import type {
   LoginResponse,
   MeResponse,
   OkResponse,
+  RegisterRequest,
+  RegisterResponse,
 } from "@/lib/types";
 
 /** Unauthenticated users are sent here (app shell gate). */
 export const LOGIN_PATH = "/login";
 
-/** Destination after successful login. */
+/** Self-registration screen. */
+export const REGISTER_PATH = "/register";
+
+/** Destination after successful login or registration. */
 export const APP_HOME_PATH = "/";
 
 /**
@@ -36,6 +41,12 @@ export function isUnauthorizedError(err: unknown): boolean {
 
 export async function login(values: LoginRequest): Promise<LoginResponse> {
   return apiClient.post<LoginResponse>("/api/auth/login", values);
+}
+
+export async function register(
+  values: RegisterRequest,
+): Promise<RegisterResponse> {
+  return apiClient.post<RegisterResponse>("/api/auth/register", values);
 }
 
 export async function logout(): Promise<OkResponse> {

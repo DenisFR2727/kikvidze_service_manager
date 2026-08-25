@@ -8,10 +8,10 @@ import { createJobsRouter } from "./jobs.js";
 /**
  * `/api` router.
  *
- * Mount public routes (login/logout) **before** `requireAuth`.
+ * Mount public routes (login/logout/register) **before** `requireAuth`.
  * Mount protected resource routes **after** `requireAuth`.
  *
- * Auth mounts as a whole under `/auth`: login/logout are public handlers;
+ * Auth mounts as a whole under `/auth`: register/login/logout are public handlers;
  * `/auth/me` applies `requireAuth` on the route itself.
  */
 export function createApiRouter(): Router {

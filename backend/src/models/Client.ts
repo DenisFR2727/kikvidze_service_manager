@@ -8,6 +8,12 @@ import {
 
 const clientSchema = new Schema(
   {
+    adminId: {
+      type: Schema.Types.ObjectId,
+      ref: "Admin",
+      required: true,
+      index: true,
+    },
     phone: {
       type: String,
       required: true,
@@ -16,8 +22,6 @@ const clientSchema = new Schema(
     phoneNormalized: {
       type: String,
       required: true,
-      unique: true,
-      index: true,
     },
     name: {
       type: String,
@@ -30,6 +34,9 @@ const clientSchema = new Schema(
     collection: "clients",
   },
 );
+
+/** Phone uniqueness is per admin (FR-011). */
+clientSchema.index({ adminId: 1, phoneNormalized: 1 }, { unique: true });
 
 export type ClientFields = InferSchemaType<typeof clientSchema>;
 export type ClientDocument = HydratedDocument<ClientFields>;

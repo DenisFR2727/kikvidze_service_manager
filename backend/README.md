@@ -1,6 +1,6 @@
 # Backend — Kikvidze Service Manager
 
-Express + TypeScript API (MongoDB) for feature `001-client-job-booking`.
+Express + TypeScript API (MongoDB) for Kikvidze Service Manager.
 
 ## Prerequisites
 
@@ -14,11 +14,11 @@ Copy `.env.example` → `.env` and adjust values:
 ```env
 PORT=4000
 MONGODB_URI=mongodb://127.0.0.1:27017/kikvidze_service_manager
-ADMIN_LOGIN=admin
-ADMIN_PASSWORD=change-me
 SESSION_SECRET=dev-secret-min-32-chars!!!!!!!!!!!!
 CORS_ORIGIN=http://localhost:3000
 ```
+
+Admins are created via `POST /api/auth/register` (see root README / feature `002-admin-registration`). Env seed login is not used.
 
 ## Install & start
 
@@ -30,7 +30,7 @@ npm run dev
 
 API: http://localhost:4000
 
-The Next.js UI (repo root) must run separately with `NEXT_PUBLIC_API_URL=http://localhost:4000` — see root `README.md` and `specs/001-client-job-booking/quickstart.md`.
+The Next.js UI (repo root) must run separately with `NEXT_PUBLIC_API_URL=http://localhost:4000` — see root `README.md`.
 
 ## Scripts
 

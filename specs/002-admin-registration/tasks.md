@@ -36,11 +36,11 @@
 
 **⚠️ CRITICAL**: No user story work until this phase is complete
 
-- [ ] T003 Add required `adminId` (ObjectId ref Admin) to `backend/src/models/Client.ts`; replace unique `phoneNormalized` with compound unique index `(adminId, phoneNormalized)`
-- [ ] T004 [P] Add required `adminId` (ObjectId ref Admin) + indexes (`adminId`, `(adminId, status)`, `(adminId, scheduledAt)`) to `backend/src/models/Job.ts`
-- [ ] T005 Implement one-time orphan ownership migration in `backend/src/services/migrateOwnership.ts` (assign clients/jobs missing `adminId` to oldest Admin when ≥1 admin exists; drop legacy phone unique index safely)
-- [ ] T006 Make `ADMIN_LOGIN` / `ADMIN_PASSWORD` optional (or remove) in `backend/src/config/env.ts`; stop calling `seedAdminIfMissing` from `backend/src/index.ts`; call `migrateOwnership` after `connectDB` instead
-- [ ] T007 [P] Retire or no-op `backend/src/services/seedAdmin.ts` (delete file and imports, or document unused — must not create admins on boot)
+- [x] T003 Add required `adminId` (ObjectId ref Admin) to `backend/src/models/Client.ts`; replace unique `phoneNormalized` with compound unique index `(adminId, phoneNormalized)`
+- [x] T004 [P] Add required `adminId` (ObjectId ref Admin) + indexes (`adminId`, `(adminId, status)`, `(adminId, scheduledAt)`) to `backend/src/models/Job.ts`
+- [x] T005 Implement one-time orphan ownership migration in `backend/src/services/migrateOwnership.ts` (assign clients/jobs missing `adminId` to oldest Admin when ≥1 admin exists; drop legacy phone unique index safely)
+- [x] T006 Make `ADMIN_LOGIN` / `ADMIN_PASSWORD` optional (or remove) in `backend/src/config/env.ts`; stop calling `seedAdminIfMissing` from `backend/src/index.ts`; call `migrateOwnership` after `connectDB` instead
+- [x] T007 [P] Retire or no-op `backend/src/services/seedAdmin.ts` (delete file and imports, or document unused — must not create admins on boot)
 
 **Checkpoint**: Models compile with `adminId`; API boots without seeding an admin; empty `admins` collection means login fails until registration (US1)
 

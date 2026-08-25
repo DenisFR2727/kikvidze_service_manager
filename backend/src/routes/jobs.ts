@@ -1,4 +1,5 @@
 import { Router, type Request, type Response } from "express";
+import { getAdminSession } from "../middleware/auth.js";
 import { AppError } from "../middleware/errorHandler.js";
 import {
   validateBody,
@@ -147,13 +148,19 @@ async function getJobHandler(req: Request, res: Response): Promise<void> {
 
 async function createJobHandler(req: Request, res: Response): Promise<void> {
   const body = req.body as CreateJobBody;
+  const session = getAdminSession(req);
+  if (!session) {
+    throw new AppError("UNAUTHORIZED", "Authentication required");
+  }
 
   const { client } = await findOrCreateClient({
+    adminId: session.adminId,
     phone: body.phone,
     name: body.name,
   });
 
   const job = await Job.create({
+    adminId: session.adminId,
     clientId: String(client._id),
     car: body.car,
     category: body.category,

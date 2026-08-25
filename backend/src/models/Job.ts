@@ -23,6 +23,12 @@ const nonNegativeNumber = {
 
 const jobSchema = new Schema(
   {
+    adminId: {
+      type: Schema.Types.ObjectId,
+      ref: "Admin",
+      required: true,
+      index: true,
+    },
     clientId: {
       type: Schema.Types.ObjectId,
       ref: "Client",
@@ -65,6 +71,9 @@ const jobSchema = new Schema(
     collection: "jobs",
   },
 );
+
+jobSchema.index({ adminId: 1, status: 1 });
+jobSchema.index({ adminId: 1, scheduledAt: 1 });
 
 export type JobFields = InferSchemaType<typeof jobSchema>;
 export type JobDocument = HydratedDocument<JobFields>;

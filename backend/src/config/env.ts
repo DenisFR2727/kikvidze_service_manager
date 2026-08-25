@@ -6,8 +6,6 @@ loadDotenv();
 const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(4000),
   MONGODB_URI: z.string().min(1, "MONGODB_URI is required"),
-  ADMIN_LOGIN: z.string().min(1, "ADMIN_LOGIN is required"),
-  ADMIN_PASSWORD: z.string().min(1, "ADMIN_PASSWORD is required"),
   SESSION_SECRET: z
     .string()
     .min(32, "SESSION_SECRET must be at least 32 characters"),

@@ -1,8 +1,10 @@
+import type { Types } from "mongoose";
 import { AppError } from "../middleware/errorHandler.js";
 import { Client, type ClientDocument } from "../models/Client.js";
 import { parsePhone } from "../utils/phone.js";
 
 export type FindOrCreateClientInput = {
+  adminId: Types.ObjectId | string;
   phone: string;
   name?: string | null;
 };
@@ -43,22 +45,24 @@ function isDuplicateKeyError(error: unknown): boolean {
 }
 
 /**
- * Find an existing Client by normalized phone or create a new one.
- * Uniqueness is enforced on `phoneNormalized` (FR-023/024).
+ * Find an existing Client by normalized phone within an admin's scope, or create one.
+ * Uniqueness is `(adminId, phoneNormalized)` per FR-011.
  */
 export async function findOrCreateClient(
   input: FindOrCreateClientInput,
 ): Promise<FindOrCreateClientResult> {
   const { phoneNormalized, phone } = parsePhoneOrThrow(input.phone);
   const name = trimOptionalName(input.name);
+  const adminId = input.adminId;
 
-  const existing = await Client.findOne({ phoneNormalized }).exec();
+  const existing = await Client.findOne({ adminId, phoneNormalized }).exec();
   if (existing) {
     return { client: existing, created: false };
   }
 
   try {
     const client = await Client.create({
+      adminId,
       phone,
       phoneNormalized,
       ...(name !== undefined ? { name } : {}),
@@ -70,7 +74,7 @@ export async function findOrCreateClient(
       throw error;
     }
 
-    const raced = await Client.findOne({ phoneNormalized }).exec();
+    const raced = await Client.findOne({ adminId, phoneNormalized }).exec();
     if (!raced) {
       throw error;
     }

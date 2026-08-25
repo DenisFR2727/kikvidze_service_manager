@@ -92,6 +92,7 @@ export async function applyJobPatch(
 
   if (body.phone !== undefined) {
     const result = await findOrCreateClient({
+      adminId: job.adminId,
       phone: body.phone,
       name: body.name,
     });

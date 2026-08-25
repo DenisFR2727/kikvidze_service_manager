@@ -6,7 +6,7 @@ import { env } from "./config/env.js";
 import { SESSION_COOKIE_NAME } from "./middleware/auth.js";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler.js";
 import { createApiRouter } from "./routes/api.js";
-import { seedAdminIfMissing } from "./services/seedAdmin.js";
+import { migrateOwnership } from "./services/migrateOwnership.js";
 
 const SESSION_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
@@ -46,7 +46,7 @@ export function createApp() {
 
 async function main(): Promise<void> {
   await connectDB();
-  await seedAdminIfMissing();
+  await migrateOwnership();
 
   const app = createApp();
   app.listen(env.PORT, () => {

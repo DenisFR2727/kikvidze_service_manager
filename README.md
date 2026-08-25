@@ -12,6 +12,7 @@
 Потрібні **два** процеси: API на `:4000` і UI на `:3000`.
 
 Див. також:
+
 - [`specs/001-client-job-booking/quickstart.md`](./specs/001-client-job-booking/quickstart.md) — роботи / клієнти
 - [`specs/002-admin-registration/quickstart.md`](./specs/002-admin-registration/quickstart.md) — реєстрація адміна та ізоляція даних
 

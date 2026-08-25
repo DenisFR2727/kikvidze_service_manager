@@ -82,3 +82,18 @@ export async function findOrCreateClient(
     return { client: raced, created: false };
   }
 }
+
+/**
+ * Load a client by id only if it belongs to `adminId`.
+ * Missing or foreign ownership → `404 NOT_FOUND` (no existence leak).
+ */
+export async function requireClientOwnedByAdmin(
+  id: string,
+  adminId: Types.ObjectId | string,
+): Promise<ClientDocument> {
+  const client = await Client.findOne({ _id: id, adminId }).exec();
+  if (!client) {
+    throw new AppError("NOT_FOUND", "Client not found");
+  }
+  return client;
+}

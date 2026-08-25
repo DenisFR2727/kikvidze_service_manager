@@ -30,6 +30,18 @@ export function getAdminSession(req: Request): AdminSession | null {
   return { adminId, login };
 }
 
+/**
+ * Require an authenticated admin session and return it.
+ * Throws `401 UNAUTHORIZED` when the session is missing or incomplete.
+ */
+export function requireAdminSession(req: Request): AdminSession {
+  const session = getAdminSession(req);
+  if (!session) {
+    throw new AppError("UNAUTHORIZED", "Authentication required");
+  }
+  return session;
+}
+
 /** Persist admin identity on the session cookie (call after successful login). */
 export function setAdminSession(req: Request, admin: AdminSession): void {
   if (!req.session) {
@@ -50,10 +62,10 @@ export function clearAdminSession(req: Request): void {
  * Responds with `401 UNAUTHORIZED` when the session is missing or incomplete.
  */
 export const requireAuth: RequestHandler = (req, _res, next) => {
-  if (!getAdminSession(req)) {
-    next(new AppError("UNAUTHORIZED", "Authentication required"));
-    return;
+  try {
+    requireAdminSession(req);
+    next();
+  } catch (error) {
+    next(error);
   }
-
-  next();
 };

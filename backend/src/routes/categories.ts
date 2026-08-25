@@ -1,11 +1,13 @@
 import { Router, type Request, type Response } from "express";
+import { requireAdminSession } from "../middleware/auth.js";
 import { Job } from "../models/Job.js";
 
 async function listCategoriesHandler(
-  _req: Request,
+  req: Request,
   res: Response,
 ): Promise<void> {
-  const raw = await Job.distinct("category").exec();
+  const session = requireAdminSession(req);
+  const raw = await Job.distinct("category", { adminId: session.adminId }).exec();
   const items = raw
     .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
     .map((value) => value.trim())

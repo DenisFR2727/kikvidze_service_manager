@@ -88,12 +88,12 @@
 
 ### Implementation for User Story 3
 
-- [ ] T016 [US3] Update find-or-create (and related client helpers) in `backend/src/services/clientService.ts` to require `adminId` and query/create within that scope
-- [ ] T017 [US3] Update job create/update/status/delete helpers in `backend/src/services/jobService.ts` to stamp/filter by `adminId` and enforce client ownership match
-- [ ] T018 [US3] Scope `GET/POST/PATCH/DELETE` job handlers in `backend/src/routes/jobs.ts` to `getAdminSession(req).adminId`; other admin’s id → `404 NOT_FOUND`
-- [ ] T019 [P] [US3] Scope client search/get in `backend/src/routes/clients.ts` and `backend/src/services/clientSearch.ts` by session `adminId`
-- [ ] T020 [P] [US3] Scope distinct categories in `backend/src/routes/categories.ts` to session `adminId` only
-- [ ] T021 [US3] Smoke-check frontend home/detail still work with scoped API (`src/app/(app)/page.tsx`, `src/app/(app)/jobs/[id]/page.tsx`) — no UI ownership switches needed if API returns only own data; fix any assumptions that break empty lists for new admins
+- [x] T016 [US3] Update find-or-create (and related client helpers) in `backend/src/services/clientService.ts` to require `adminId` and query/create within that scope
+- [x] T017 [US3] Update job create/update/status/delete helpers in `backend/src/services/jobService.ts` to stamp/filter by `adminId` and enforce client ownership match
+- [x] T018 [US3] Scope `GET/POST/PATCH/DELETE` job handlers in `backend/src/routes/jobs.ts` to `getAdminSession(req).adminId`; other admin’s id → `404 NOT_FOUND`
+- [x] T019 [P] [US3] Scope client search/get in `backend/src/routes/clients.ts` and `backend/src/services/clientSearch.ts` by session `adminId`
+- [x] T020 [P] [US3] Scope distinct categories in `backend/src/routes/categories.ts` to session `adminId` only
+- [x] T021 [US3] Smoke-check frontend home/detail still work with scoped API (`src/app/(app)/page.tsx`, `src/app/(app)/jobs/[id]/page.tsx`) — no UI ownership switches needed if API returns only own data; fix any assumptions that break empty lists for new admins
 
 **Checkpoint**: Dual-admin isolation holds (FR-008–011, SC-003–004)
 

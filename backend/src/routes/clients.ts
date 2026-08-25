@@ -1,6 +1,6 @@
 import { Router, type Request, type Response } from "express";
 import { Types } from "mongoose";
-import { AppError } from "../middleware/errorHandler.js";
+import { requireAdminSession } from "../middleware/auth.js";
 import { validateParams, validateQuery } from "../middleware/validate.js";
 import { Client, type ClientDocument } from "../models/Client.js";
 import { Job } from "../models/Job.js";
@@ -10,6 +10,7 @@ import {
   type ClientIdParams,
   type ListClientsQuery,
 } from "../schemas/clientSchemas.js";
+import { requireClientOwnedByAdmin } from "../services/clientService.js";
 import { buildClientSearchFilter } from "../services/clientSearch.js";
 
 function serializeClientListItem(
@@ -25,6 +26,7 @@ function serializeClientListItem(
 }
 
 async function countJobsByClientId(
+  adminId: string,
   clientIds: string[],
 ): Promise<Map<string, number>> {
   const counts = new Map<string, number>(
@@ -40,7 +42,12 @@ async function countJobsByClientId(
     .map((id) => new Types.ObjectId(id));
 
   const rows = await Job.aggregate<{ _id: Types.ObjectId; count: number }>([
-    { $match: { clientId: { $in: objectIds } } },
+    {
+      $match: {
+        adminId: new Types.ObjectId(adminId),
+        clientId: { $in: objectIds },
+      },
+    },
     { $group: { _id: "$clientId", count: { $sum: 1 } } },
   ]).exec();
 
@@ -52,11 +59,13 @@ async function countJobsByClientId(
 }
 
 async function listClientsHandler(req: Request, res: Response): Promise<void> {
+  const session = requireAdminSession(req);
   const query = req.query as unknown as ListClientsQuery;
-  const filter = query.q ? buildClientSearchFilter(query.q) : {};
+  const filter = buildClientSearchFilter(session.adminId, query.q);
 
   const clients = await Client.find(filter).sort({ phoneNormalized: 1 }).exec();
   const jobsCountById = await countJobsByClientId(
+    session.adminId,
     clients.map((client) => String(client._id)),
   );
 
@@ -71,13 +80,14 @@ async function listClientsHandler(req: Request, res: Response): Promise<void> {
 }
 
 async function getClientHandler(req: Request, res: Response): Promise<void> {
+  const session = requireAdminSession(req);
   const { id } = req.params as ClientIdParams;
-  const client = await Client.findById(id).exec();
-  if (!client) {
-    throw new AppError("NOT_FOUND", "Client not found");
-  }
+  const client = await requireClientOwnedByAdmin(id, session.adminId);
 
-  const jobsCount = await Job.countDocuments({ clientId: client._id }).exec();
+  const jobsCount = await Job.countDocuments({
+    adminId: session.adminId,
+    clientId: client._id,
+  }).exec();
 
   res.status(200).json({
     ...serializeClientListItem(client, jobsCount),

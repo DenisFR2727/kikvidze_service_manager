@@ -1,3 +1,4 @@
+import type { Types } from "mongoose";
 import { AppError } from "../middleware/errorHandler.js";
 import type { ClientDocument } from "../models/Client.js";
 import { Job, type JobDocument, type JobStatus } from "../models/Job.js";
@@ -79,15 +80,34 @@ function applyOptionalName(
 }
 
 /**
- * Apply PATCH fields: phone change rebinds via find-or-create (FR-014).
- * Mutates `job` in memory; saves client when name/phone binding changes.
- * Caller must `job.save()`.
+ * Load a job by id only if it belongs to `adminId`.
+ * Missing or foreign ownership → `404 NOT_FOUND` (no existence leak).
+ */
+export async function requireJobOwnedByAdmin(
+  id: string,
+  adminId: Types.ObjectId | string,
+): Promise<JobDocument> {
+  const job = await Job.findOne({ _id: id, adminId }).exec();
+  if (!job) {
+    throw new AppError("NOT_FOUND", "Job not found");
+  }
+  return job;
+}
+
+/**
+ * Apply PATCH fields: phone change rebinds via find-or-create (FR-014)
+ * within the job owner's admin scope. Mutates `job` in memory; saves client
+ * when name/phone binding changes. Caller must `job.save()`.
  */
 export async function applyJobPatch(
   job: JobDocument,
   client: ClientDocument,
   body: UpdateJobInput,
 ): Promise<ClientDocument> {
+  if (String(client.adminId) !== String(job.adminId)) {
+    throw new AppError("NOT_FOUND", "Client not found");
+  }
+
   let nextClient = client;
 
   if (body.phone !== undefined) {
@@ -137,9 +157,15 @@ export async function applyJobPatch(
   return nextClient;
 }
 
-/** Hard-delete a job. Client is retained (FR-028 / contract). */
-export async function deleteJobById(id: string): Promise<void> {
-  const result = await Job.findByIdAndDelete(id).exec();
+/**
+ * Hard-delete a job owned by `adminId`. Client is retained (FR-028 / contract).
+ * Missing or foreign ownership → `404 NOT_FOUND`.
+ */
+export async function deleteJobById(
+  id: string,
+  adminId: Types.ObjectId | string,
+): Promise<void> {
+  const result = await Job.findOneAndDelete({ _id: id, adminId }).exec();
   if (!result) {
     throw new AppError("NOT_FOUND", "Job not found");
   }

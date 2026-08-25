@@ -1,6 +1,5 @@
 import { Router, type Request, type Response } from "express";
-import { getAdminSession } from "../middleware/auth.js";
-import { AppError } from "../middleware/errorHandler.js";
+import { requireAdminSession } from "../middleware/auth.js";
 import {
   validateBody,
   validateParams,
@@ -18,13 +17,17 @@ import {
   type ListJobsQuery,
   type UpdateJobBody,
 } from "../schemas/jobSchemas.js";
-import { findOrCreateClient } from "../services/clientService.js";
+import {
+  findOrCreateClient,
+  requireClientOwnedByAdmin,
+} from "../services/clientService.js";
 import { buildClientSearchFilter } from "../services/clientSearch.js";
 import {
   applyJobPatch,
   deleteJobById,
   getDisplayAt,
   matchesDisplayAtRange,
+  requireJobOwnedByAdmin,
 } from "../services/jobService.js";
 import { escapeRegex } from "../utils/escapeRegex.js";
 
@@ -65,35 +68,24 @@ function serializeJob(job: JobDocument, client: ClientDocument) {
 }
 
 async function loadClientsById(
+  adminId: string,
   clientIds: string[],
 ): Promise<Map<string, ClientDocument>> {
   if (clientIds.length === 0) {
     return new Map();
   }
 
-  const clients = await Client.find().where("_id").in(clientIds).exec();
+  const clients = await Client.find({ adminId })
+    .where("_id")
+    .in(clientIds)
+    .exec();
   return new Map(clients.map((client) => [String(client._id), client]));
 }
 
-async function requireJob(id: string): Promise<JobDocument> {
-  const job = await Job.findById(id).exec();
-  if (!job) {
-    throw new AppError("NOT_FOUND", "Job not found");
-  }
-  return job;
-}
-
-async function requireClient(clientId: string): Promise<ClientDocument> {
-  const client = await Client.findById(clientId).exec();
-  if (!client) {
-    throw new AppError("NOT_FOUND", "Client not found");
-  }
-  return client;
-}
-
 async function listJobsHandler(req: Request, res: Response): Promise<void> {
+  const session = requireAdminSession(req);
   const query = req.query as unknown as ListJobsQuery;
-  const filter: Record<string, unknown> = {};
+  const filter: Record<string, unknown> = { adminId: session.adminId };
 
   if (query.status) {
     filter.status = query.status;
@@ -111,7 +103,9 @@ async function listJobsHandler(req: Request, res: Response): Promise<void> {
       { car: { $regex: escapeRegex(q), $options: "i" } },
     ];
 
-    const matchingClients = await Client.find(buildClientSearchFilter(q))
+    const matchingClients = await Client.find(
+      buildClientSearchFilter(session.adminId, q),
+    )
       .select("_id")
       .exec();
     const clientIds = matchingClients.map((client) => client._id);
@@ -128,6 +122,7 @@ async function listJobsHandler(req: Request, res: Response): Promise<void> {
   );
 
   const clientsById = await loadClientsById(
+    session.adminId,
     [...new Set(filtered.map((job) => String(job.clientId)))],
   );
 
@@ -140,18 +135,19 @@ async function listJobsHandler(req: Request, res: Response): Promise<void> {
 }
 
 async function getJobHandler(req: Request, res: Response): Promise<void> {
+  const session = requireAdminSession(req);
   const { id } = req.params as JobIdParams;
-  const job = await requireJob(id);
-  const client = await requireClient(String(job.clientId));
+  const job = await requireJobOwnedByAdmin(id, session.adminId);
+  const client = await requireClientOwnedByAdmin(
+    String(job.clientId),
+    session.adminId,
+  );
   res.status(200).json(serializeJob(job, client));
 }
 
 async function createJobHandler(req: Request, res: Response): Promise<void> {
+  const session = requireAdminSession(req);
   const body = req.body as CreateJobBody;
-  const session = getAdminSession(req);
-  if (!session) {
-    throw new AppError("UNAUTHORIZED", "Authentication required");
-  }
 
   const { client } = await findOrCreateClient({
     adminId: session.adminId,
@@ -174,10 +170,14 @@ async function createJobHandler(req: Request, res: Response): Promise<void> {
 }
 
 async function patchJobHandler(req: Request, res: Response): Promise<void> {
+  const session = requireAdminSession(req);
   const { id } = req.params as JobIdParams;
   const body = req.body as UpdateJobBody;
-  const job = await requireJob(id);
-  const client = await requireClient(String(job.clientId));
+  const job = await requireJobOwnedByAdmin(id, session.adminId);
+  const client = await requireClientOwnedByAdmin(
+    String(job.clientId),
+    session.adminId,
+  );
 
   const nextClient = await applyJobPatch(job, client, body);
   await job.save();
@@ -186,8 +186,9 @@ async function patchJobHandler(req: Request, res: Response): Promise<void> {
 }
 
 async function deleteJobHandler(req: Request, res: Response): Promise<void> {
+  const session = requireAdminSession(req);
   const { id } = req.params as JobIdParams;
-  await deleteJobById(id);
+  await deleteJobById(id, session.adminId);
   res.status(204).send();
 }
 

@@ -11,7 +11,9 @@
 
 Потрібні **два** процеси: API на `:4000` і UI на `:3000`.
 
-Див. також повний сценарій валідації: [`specs/001-client-job-booking/quickstart.md`](./specs/001-client-job-booking/quickstart.md).
+Див. також:
+- [`specs/001-client-job-booking/quickstart.md`](./specs/001-client-job-booking/quickstart.md) — роботи / клієнти
+- [`specs/002-admin-registration/quickstart.md`](./specs/002-admin-registration/quickstart.md) — реєстрація адміна та ізоляція даних
 
 ### 1. Env
 
@@ -29,18 +31,16 @@ cd ..
 
 Переконайся, що MongoDB запущена і `MONGODB_URI` у `backend/.env` коректний.
 
-**`backend/.env`** (приклад з quickstart):
+**`backend/.env`** (приклад):
 
 ```env
 PORT=4000
 MONGODB_URI=mongodb://127.0.0.1:27017/kikvidze_service_manager
-ADMIN_LOGIN=admin
-ADMIN_PASSWORD=change-me
 SESSION_SECRET=dev-secret-min-32-chars!!!!!!!!!!!!
 CORS_ORIGIN=http://localhost:3000
 ```
 
-**Root `.env.local`**:
+**Root `.env.local`** (з `.env.local.example`):
 
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:4000
@@ -74,6 +74,14 @@ npm run dev
 - API: [http://localhost:4000](http://localhost:4000)
 
 Backend details: [`backend/README.md`](./backend/README.md).
+
+### 4. Auth (перший адмін)
+
+Облікові дані **не** задаються через `ADMIN_LOGIN` / `ADMIN_PASSWORD` у env.
+
+1. Відкрий UI → екран входу → **Зареєструватися** (або `POST /api/auth/register` з `login` + `password`, min 8 символів).
+2. Після реєстрації сесія створюється автоматично; далі вхід — логін і пароль зареєстрованого адміна.
+3. Кожен адмін бачить лише своїх клієнтів і роботи.
 
 ## Project structure
 

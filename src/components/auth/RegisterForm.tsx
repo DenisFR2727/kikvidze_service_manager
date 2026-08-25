@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { AuthFormField } from "@/components/auth/AuthFormField";
 import { uk } from "@/lib/i18n/uk";
 import type { RegisterRequest } from "@/lib/types";
-import styles from "./LoginForm.module.scss";
+import styles from "./AuthForm.module.scss";
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -75,90 +76,47 @@ export function RegisterForm({ onSubmit }: RegisterFormProps) {
 
   return (
     <form className={styles.form} onSubmit={handleSubmit} noValidate>
-      <div className={styles.field}>
-        <label className={styles.label} htmlFor="register-login">
-          {uk.auth.login}
-        </label>
-        <input
-          id="register-login"
-          className={styles.input}
-          name="login"
-          type="text"
-          autoComplete="username"
-          value={login}
-          onChange={(e) => setLogin(e.target.value)}
-          disabled={isPending}
-          aria-invalid={Boolean(fieldErrors.login)}
-          aria-describedby={
-            fieldErrors.login ? "register-login-error" : undefined
-          }
-        />
-        {fieldErrors.login ? (
-          <p id="register-login-error" className={styles.fieldError} role="alert">
-            {fieldErrors.login}
-          </p>
-        ) : null}
-      </div>
+      <AuthFormField
+        id="register-login"
+        label={uk.auth.login}
+        error={fieldErrors.login}
+        inputProps={{
+          name: "login",
+          type: "text",
+          autoComplete: "username",
+          value: login,
+          onChange: (e) => setLogin(e.target.value),
+          disabled: isPending,
+        }}
+      />
 
-      <div className={styles.field}>
-        <label className={styles.label} htmlFor="register-password">
-          {uk.auth.password}
-        </label>
-        <input
-          id="register-password"
-          className={styles.input}
-          name="password"
-          type="password"
-          autoComplete="new-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          disabled={isPending}
-          aria-invalid={Boolean(fieldErrors.password)}
-          aria-describedby={
-            fieldErrors.password ? "register-password-error" : undefined
-          }
-        />
-        {fieldErrors.password ? (
-          <p
-            id="register-password-error"
-            className={styles.fieldError}
-            role="alert"
-          >
-            {fieldErrors.password}
-          </p>
-        ) : null}
-      </div>
+      <AuthFormField
+        id="register-password"
+        label={uk.auth.password}
+        error={fieldErrors.password}
+        inputProps={{
+          name: "password",
+          type: "password",
+          autoComplete: "new-password",
+          value: password,
+          onChange: (e) => setPassword(e.target.value),
+          disabled: isPending,
+        }}
+      />
 
-      <div className={styles.field}>
-        <label className={styles.label} htmlFor="register-password-confirm">
-          {uk.auth.passwordConfirm}
-        </label>
-        <input
-          id="register-password-confirm"
-          className={styles.input}
-          name="passwordConfirm"
-          type="password"
-          autoComplete="new-password"
-          value={passwordConfirm}
-          onChange={(e) => setPasswordConfirm(e.target.value)}
-          disabled={isPending}
-          aria-invalid={Boolean(fieldErrors.passwordConfirm)}
-          aria-describedby={
-            fieldErrors.passwordConfirm
-              ? "register-password-confirm-error"
-              : undefined
-          }
-        />
-        {fieldErrors.passwordConfirm ? (
-          <p
-            id="register-password-confirm-error"
-            className={styles.fieldError}
-            role="alert"
-          >
-            {fieldErrors.passwordConfirm}
-          </p>
-        ) : null}
-      </div>
+      <AuthFormField
+        id="register-password-confirm"
+        label={uk.auth.passwordConfirm}
+        error={fieldErrors.passwordConfirm}
+        inputProps={{
+          name: "passwordConfirm",
+          type: "password",
+          autoComplete: "new-password",
+          value: passwordConfirm,
+          onChange: (e) => setPasswordConfirm(e.target.value),
+          disabled: isPending,
+        }}
+      />
 
       {formError ? (
         <p className={styles.formError} role="alert">

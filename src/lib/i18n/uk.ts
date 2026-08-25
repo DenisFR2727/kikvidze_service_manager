@@ -38,6 +38,8 @@ export const uk = {
     logout: "Вийти",
     loggingOut: "Вихід…",
     checkingSession: "Перевірка сесії…",
+    sessionCheckFailed: "Не вдалося перевірити сесію. Спробуйте ще раз.",
+    retrySession: "Спробувати знову",
     loginRequired: "Вкажіть логін",
     passwordRequired: "Вкажіть пароль",
     passwordConfirmRequired: "Підтвердіть пароль",

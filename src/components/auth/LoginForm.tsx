@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { AuthFormField } from "@/components/auth/AuthFormField";
 import { uk } from "@/lib/i18n/uk";
 import type { LoginRequest } from "@/lib/types";
-import styles from "./LoginForm.module.scss";
+import styles from "./AuthForm.module.scss";
 
 export type LoginFormProps = {
   /** Called with trimmed credentials; reject/throw to show an error. */
@@ -56,51 +57,33 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
 
   return (
     <form className={styles.form} onSubmit={handleSubmit} noValidate>
-      <div className={styles.field}>
-        <label className={styles.label} htmlFor="login">
-          {uk.auth.login}
-        </label>
-        <input
-          id="login"
-          className={styles.input}
-          name="login"
-          type="text"
-          autoComplete="username"
-          value={login}
-          onChange={(e) => setLogin(e.target.value)}
-          disabled={isPending}
-          aria-invalid={Boolean(fieldErrors.login)}
-          aria-describedby={fieldErrors.login ? "login-error" : undefined}
-        />
-        {fieldErrors.login ? (
-          <p id="login-error" className={styles.fieldError} role="alert">
-            {fieldErrors.login}
-          </p>
-        ) : null}
-      </div>
+      <AuthFormField
+        id="login"
+        label={uk.auth.login}
+        error={fieldErrors.login}
+        inputProps={{
+          name: "login",
+          type: "text",
+          autoComplete: "username",
+          value: login,
+          onChange: (e) => setLogin(e.target.value),
+          disabled: isPending,
+        }}
+      />
 
-      <div className={styles.field}>
-        <label className={styles.label} htmlFor="password">
-          {uk.auth.password}
-        </label>
-        <input
-          id="password"
-          className={styles.input}
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          disabled={isPending}
-          aria-invalid={Boolean(fieldErrors.password)}
-          aria-describedby={fieldErrors.password ? "password-error" : undefined}
-        />
-        {fieldErrors.password ? (
-          <p id="password-error" className={styles.fieldError} role="alert">
-            {fieldErrors.password}
-          </p>
-        ) : null}
-      </div>
+      <AuthFormField
+        id="password"
+        label={uk.auth.password}
+        error={fieldErrors.password}
+        inputProps={{
+          name: "password",
+          type: "password",
+          autoComplete: "current-password",
+          value: password,
+          onChange: (e) => setPassword(e.target.value),
+          disabled: isPending,
+        }}
+      />
 
       {formError ? (
         <p className={styles.formError} role="alert">

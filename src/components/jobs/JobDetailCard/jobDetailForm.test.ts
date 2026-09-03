@@ -123,7 +123,7 @@ describe("validateDetailForm", () => {
     assert.ok(payload.scheduledAt);
   });
 
-  it("requires phone, car, category, scheduledAt, prices", () => {
+  it("requires phone, car, category, scheduledAt, workPrice", () => {
     const { payload, errors } = validateDetailForm(
       validForm({
         phone: "  ",
@@ -141,6 +141,15 @@ describe("validateDetailForm", () => {
     assert.ok(errors.scheduledAt);
     assert.ok(errors.workPrice);
     assert.ok(errors.materialPrice);
+  });
+
+  it("defaults empty materialPrice to 0", () => {
+    const { payload, errors } = validateDetailForm(
+      validForm({ materialPrice: "   " }),
+    );
+    assert.deepEqual(errors, {});
+    assert.ok(payload);
+    assert.equal(payload.materialPrice, 0);
   });
 
   it("maps empty name to null and completedAt when set", () => {

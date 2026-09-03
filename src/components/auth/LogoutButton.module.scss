@@ -3,3 +3,18 @@
 .button {
   @include buttons.secondary-button;
 }
+
+.dialog {
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  max-width: min(24rem, calc(100vw - 2rem));
+  width: 100%;
+}
+
+.dialog::backdrop {
+  background: rgb(26 35 50 / 45%);
+}

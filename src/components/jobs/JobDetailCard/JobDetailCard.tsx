@@ -298,7 +298,6 @@ export function JobDetailCard({ job, onSaved, onDeleted }: JobDetailCardProps) {
           <JobFormField
             id={fieldId("materialPrice")}
             label={uk.job.materialPrice}
-            required
             requiredMark={uk.common.requiredMark}
             error={fieldErrors.materialPrice}
             styles={fieldStyles}
@@ -307,6 +306,7 @@ export function JobDetailCard({ job, onSaved, onDeleted }: JobDetailCardProps) {
               min: 0,
               step: 1,
               inputMode: "decimal",
+              placeholder: uk.common.optional,
               value: form.materialPrice,
               disabled: busy,
               onChange: (e) => updateField("materialPrice", e.target.value),

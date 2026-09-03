@@ -248,7 +248,7 @@ export function JobForm({ onSubmit, categories, onCreated }: JobFormProps) {
               min: 0,
               step: 1,
               inputMode: "decimal",
-              placeholder: "0",
+              placeholder: uk.common.optional,
               value: form.materialPrice,
               disabled: isPending,
               onChange: (e) => updateField("materialPrice", e.target.value),

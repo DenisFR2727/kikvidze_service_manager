@@ -73,20 +73,20 @@ export function validateJobCoreFields(
     errors.workPrice = work.error;
   }
 
-  const material = parseNonNegativePrice(
-    form.materialPrice,
-    uk.job.materialPriceLabel,
-  );
-  if (!material.ok) {
-    errors.materialPrice = material.error;
+  let materialPrice = 0;
+  if (form.materialPrice.trim()) {
+    const material = parseNonNegativePrice(
+      form.materialPrice,
+      uk.job.materialPriceLabel,
+    );
+    if (!material.ok) {
+      errors.materialPrice = material.error;
+    } else {
+      materialPrice = material.value;
+    }
   }
 
-  if (
-    Object.keys(errors).length > 0 ||
-    !work.ok ||
-    !material.ok ||
-    scheduledAt === undefined
-  ) {
+  if (Object.keys(errors).length > 0 || !work.ok || scheduledAt === undefined) {
     return { errors };
   }
 
@@ -99,7 +99,7 @@ export function validateJobCoreFields(
       category,
       scheduledAt,
       workPrice: work.value,
-      materialPrice: material.value,
+      materialPrice,
     },
   };
 }

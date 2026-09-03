@@ -47,7 +47,7 @@ describe("validateCreateForm", () => {
     );
   });
 
-  it("requires phone, car, category, scheduledAt, prices", () => {
+  it("requires phone, car, category, scheduledAt, workPrice", () => {
     const { payload, errors } = validateCreateForm(
       validForm({
         phone: "  ",
@@ -64,6 +64,23 @@ describe("validateCreateForm", () => {
     assert.ok(errors.category);
     assert.ok(errors.scheduledAt);
     assert.ok(errors.workPrice);
+    assert.ok(errors.materialPrice);
+  });
+
+  it("defaults empty materialPrice to 0", () => {
+    const { payload, errors } = validateCreateForm(
+      validForm({ materialPrice: "   " }),
+    );
+    assert.deepEqual(errors, {});
+    assert.ok(payload);
+    assert.equal(payload.materialPrice, 0);
+  });
+
+  it("rejects negative materialPrice", () => {
+    const { payload, errors } = validateCreateForm(
+      validForm({ materialPrice: "-5" }),
+    );
+    assert.equal(payload, undefined);
     assert.ok(errors.materialPrice);
   });
 

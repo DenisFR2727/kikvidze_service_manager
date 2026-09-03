@@ -53,6 +53,8 @@ export const uk = {
   common: {
     requiredMark: "*",
     optional: "Опційно",
+    collapse: "Згорнути форму",
+    expand: "Розгорнути форму",
     reset: "Скинути",
     clear: "Очистити",
     cancel: "Скасувати",

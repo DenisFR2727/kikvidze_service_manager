@@ -50,6 +50,7 @@ export function JobForm({ onSubmit, categories, onCreated }: JobFormProps) {
   const [fieldErrors, setFieldErrors] = useState<CreateFieldErrors>({});
   const [feedback, setFeedback] = useState<FormFeedback | null>(null);
   const [isPending, setIsPending] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
 
   function updateField<K extends keyof CreateFormState>(
     key: K,
@@ -114,11 +115,33 @@ export function JobForm({ onSubmit, categories, onCreated }: JobFormProps) {
 
   return (
     <section className={styles.panel} aria-labelledby={titleId}>
-      <h2 id={titleId} className={styles.title}>
-        {uk.job.newTitle}
-      </h2>
+      <div className={styles.header}>
+        <h2 id={titleId} className={styles.title}>
+          {uk.job.newTitle}
+        </h2>
+        <button
+          type="button"
+          className={styles.toggleBtn}
+          aria-expanded={isExpanded}
+          aria-controls={`${idPrefix}-form`}
+          onClick={() => setIsExpanded((v) => !v)}
+          title={isExpanded ? uk.common.collapse : uk.common.expand}
+        >
+          <span
+            className={styles.toggleArrow}
+            aria-hidden="true"
+            data-expanded={isExpanded}
+          />
+        </button>
+      </div>
 
-      <form className={styles.form} onSubmit={handleSubmit} noValidate>
+      <form
+        id={`${idPrefix}-form`}
+        className={styles.form}
+        hidden={!isExpanded}
+        onSubmit={handleSubmit}
+        noValidate
+      >
         <div className={styles.grid}>
           <JobFormField
             id={fieldId("phone")}

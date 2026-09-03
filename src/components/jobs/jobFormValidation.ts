@@ -1,5 +1,6 @@
 import { parseNonNegativePrice } from "./jobFormShared.ts";
 import { uk } from "../../lib/i18n/uk.ts";
+import { isValidPhoneInput } from "../../lib/phone.ts";
 
 export type JobCoreFormFields = {
   phone: string;
@@ -45,6 +46,8 @@ export function validateJobCoreFields(
 
   if (!phone) {
     errors.phone = uk.job.phoneRequired;
+  } else if (!isValidPhoneInput(phone)) {
+    errors.phone = uk.job.phoneInvalid;
   }
   if (!car) {
     errors.car = uk.job.carRequired;

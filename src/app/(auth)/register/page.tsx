@@ -3,8 +3,12 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { RegisterForm } from "@/components/auth/RegisterForm";
-import { ApiError } from "@/lib/api-client";
-import { APP_HOME_PATH, register } from "@/lib/auth";
+import { mapRegisterApiError } from "@/components/auth/authApiErrors";
+import {
+  APP_HOME_PATH,
+  LOGIN_PATH,
+  register,
+} from "@/lib/auth";
 import { uk } from "@/lib/i18n/uk";
 import type { RegisterRequest } from "@/lib/types";
 
@@ -15,18 +19,9 @@ export default function RegisterPage() {
     try {
       await register(values);
     } catch (err) {
-      if (err instanceof ApiError && err.code === "CONFLICT") {
-        throw new Error(uk.auth.loginTaken);
-      }
-      if (err instanceof ApiError && err.code === "VALIDATION_ERROR") {
-        const passwordField = err.fields?.password;
-        if (passwordField) {
-          throw new Error(uk.auth.passwordTooShort);
-        }
-        throw new Error(err.message || uk.auth.registerFailed);
-      }
-      if (err instanceof ApiError) {
-        throw new Error(err.message || uk.auth.registerFailed);
+      const mapped = mapRegisterApiError(err);
+      if (mapped) {
+        throw mapped;
       }
       throw err;
     }
@@ -40,7 +35,7 @@ export default function RegisterPage() {
       <h1 className="login__title">{uk.auth.registerTitle}</h1>
       <RegisterForm onSubmit={handleRegister} />
       <p className="login__nav">
-        <Link href="/login">{uk.auth.toLogin}</Link>
+        <Link href={LOGIN_PATH}>{uk.auth.toLogin}</Link>
       </p>
     </div>
   );

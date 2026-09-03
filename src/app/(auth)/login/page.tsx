@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LoginForm } from "@/components/auth/LoginForm";
-import { ApiError } from "@/lib/api-client";
-import { APP_HOME_PATH, login } from "@/lib/auth";
+import { mapLoginApiError } from "@/components/auth/authApiErrors";
+import { APP_HOME_PATH, REGISTER_PATH, login } from "@/lib/auth";
 import { uk } from "@/lib/i18n/uk";
 import type { LoginRequest } from "@/lib/types";
 
@@ -15,14 +15,9 @@ export default function LoginPage() {
     try {
       await login(values);
     } catch (err) {
-      if (err instanceof ApiError && err.isUnauthorized) {
-        throw new Error(uk.auth.invalidCredentials);
-      }
-      if (err instanceof ApiError && err.code === "NETWORK") {
-        throw new Error(uk.auth.loginFailed);
-      }
-      if (err instanceof ApiError) {
-        throw new Error(uk.auth.loginFailed);
+      const mapped = mapLoginApiError(err);
+      if (mapped) {
+        throw mapped;
       }
       throw err;
     }
@@ -37,7 +32,7 @@ export default function LoginPage() {
       <p className="login__subtitle">{uk.auth.loginSubtitle}</p>
       <LoginForm onSubmit={handleLogin} />
       <p className="login__nav">
-        <Link href="/register">{uk.auth.toRegister}</Link>
+        <Link href={REGISTER_PATH}>{uk.auth.toRegister}</Link>
       </p>
     </div>
   );

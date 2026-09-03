@@ -7,9 +7,7 @@ import {
   type CreateFormState,
 } from "../jobCreateForm.ts";
 
-function validForm(
-  overrides: Partial<CreateFormState> = {},
-): CreateFormState {
+function validForm(overrides: Partial<CreateFormState> = {}): CreateFormState {
   return {
     phone: "+380501112233",
     name: "Оля",
@@ -69,6 +67,12 @@ describe("validateCreateForm", () => {
     assert.ok(errors.materialPrice);
   });
 
+  it("rejects invalid phone", () => {
+    const { payload, errors } = validateCreateForm(validForm({ phone: "123" }));
+    assert.equal(payload, undefined);
+    assert.ok(errors.phone);
+  });
+
   it("rejects invalid scheduledAt", () => {
     const { payload, errors } = validateCreateForm(
       validForm({ scheduledAtLocal: "not-a-date" }),
@@ -78,9 +82,7 @@ describe("validateCreateForm", () => {
   });
 
   it("omits empty name as undefined", () => {
-    const { payload, errors } = validateCreateForm(
-      validForm({ name: "   " }),
-    );
+    const { payload, errors } = validateCreateForm(validForm({ name: "   " }));
     assert.deepEqual(errors, {});
     assert.ok(payload);
     assert.equal(payload.name, undefined);

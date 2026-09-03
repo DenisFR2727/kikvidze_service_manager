@@ -17,6 +17,7 @@ import {
 } from "@/components/jobs/jobFormShared";
 import { JobStatusSelect } from "@/components/jobs/JobStatusSelect";
 import { ApiError, apiClient } from "@/lib/api-client";
+import { sanitizePhoneInput } from "@/lib/phone";
 import { uk } from "@/lib/i18n/uk";
 import type { Job, JobStatus, ListResponse } from "@/lib/types";
 import styles from "./JobDetailCard.module.scss";
@@ -189,7 +190,8 @@ export function JobDetailCard({ job, onSaved, onDeleted }: JobDetailCardProps) {
               inputMode: "tel",
               value: form.phone,
               disabled: busy,
-              onChange: (e) => updateField("phone", e.target.value),
+              onChange: (e) =>
+                updateField("phone", sanitizePhoneInput(e.target.value)),
             }}
           />
 

@@ -106,6 +106,7 @@ export const uk = {
       "Запис буде видалено остаточно. Клієнт залишиться в системі.",
     deleteConfirm: "Так, видалити",
     phoneRequired: "Вкажіть телефон клієнта",
+    phoneInvalid: "Некоректний номер телефону",
     carRequired: "Вкажіть авто",
     categoryRequired: "Вкажіть категорію робіт",
     scheduledRequired: "Вкажіть дату та час",

@@ -2,6 +2,13 @@
 
 import { useState } from "react";
 import { AuthFormField } from "@/components/auth/AuthFormField";
+import { AuthSubmitError } from "@/components/auth/authApiErrors";
+import {
+  emptyLoginForm,
+  validateLoginForm,
+  type LoginFieldErrors,
+  type LoginFormState,
+} from "@/components/auth/authFormValidation";
 import { uk } from "@/lib/i18n/uk";
 import type { LoginRequest } from "@/lib/types";
 import styles from "./AuthForm.module.scss";
@@ -12,39 +19,43 @@ export type LoginFormProps = {
 };
 
 export function LoginForm({ onSubmit }: LoginFormProps) {
-  const [login, setLogin] = useState("");
-  const [password, setPassword] = useState("");
-  const [fieldErrors, setFieldErrors] = useState<{
-    login?: string;
-    password?: string;
-  }>({});
+  const [form, setForm] = useState<LoginFormState>(() => emptyLoginForm());
+  const [fieldErrors, setFieldErrors] = useState<LoginFieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
+
+  function updateField<K extends keyof LoginFormState>(
+    key: K,
+    value: LoginFormState[K],
+  ) {
+    setForm((current) => ({ ...current, [key]: value }));
+  }
 
   async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const nextLogin = login.trim();
-    const nextErrors: { login?: string; password?: string } = {};
-
-    if (!nextLogin) {
-      nextErrors.login = uk.auth.loginRequired;
-    }
-    if (!password) {
-      nextErrors.password = uk.auth.passwordRequired;
-    }
-
-    setFieldErrors(nextErrors);
+    const { payload, errors } = validateLoginForm(form);
+    setFieldErrors(errors);
     setFormError(null);
 
-    if (nextErrors.login || nextErrors.password) {
+    if (!payload) {
       return;
     }
 
     setIsPending(true);
     try {
-      await onSubmit({ login: nextLogin, password });
+      await onSubmit(payload);
     } catch (err) {
+      if (err instanceof AuthSubmitError) {
+        if (err.fieldErrors) {
+          setFieldErrors((current) => ({ ...current, ...err.fieldErrors }));
+        }
+        if (err.formError) {
+          setFormError(err.formError);
+        }
+        return;
+      }
+
       const message =
         err instanceof Error && err.message
           ? err.message
@@ -65,8 +76,8 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
           name: "login",
           type: "text",
           autoComplete: "username",
-          value: login,
-          onChange: (e) => setLogin(e.target.value),
+          value: form.login,
+          onChange: (e) => updateField("login", e.target.value),
           disabled: isPending,
         }}
       />
@@ -79,8 +90,8 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
           name: "password",
           type: "password",
           autoComplete: "current-password",
-          value: password,
-          onChange: (e) => setPassword(e.target.value),
+          value: form.password,
+          onChange: (e) => updateField("password", e.target.value),
           disabled: isPending,
         }}
       />

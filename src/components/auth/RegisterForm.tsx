@@ -2,11 +2,16 @@
 
 import { useState } from "react";
 import { AuthFormField } from "@/components/auth/AuthFormField";
+import { AuthSubmitError } from "@/components/auth/authApiErrors";
+import {
+  emptyRegisterForm,
+  validateRegisterForm,
+  type RegisterFieldErrors,
+  type RegisterFormState,
+} from "@/components/auth/authFormValidation";
 import { uk } from "@/lib/i18n/uk";
 import type { RegisterRequest } from "@/lib/types";
 import styles from "./AuthForm.module.scss";
-
-const MIN_PASSWORD_LENGTH = 8;
 
 export type RegisterFormProps = {
   /** Called with trimmed credentials; reject/throw to show an error. */
@@ -14,56 +19,43 @@ export type RegisterFormProps = {
 };
 
 export function RegisterForm({ onSubmit }: RegisterFormProps) {
-  const [login, setLogin] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordConfirm, setPasswordConfirm] = useState("");
-  const [fieldErrors, setFieldErrors] = useState<{
-    login?: string;
-    password?: string;
-    passwordConfirm?: string;
-  }>({});
+  const [form, setForm] = useState<RegisterFormState>(() => emptyRegisterForm());
+  const [fieldErrors, setFieldErrors] = useState<RegisterFieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
+
+  function updateField<K extends keyof RegisterFormState>(
+    key: K,
+    value: RegisterFormState[K],
+  ) {
+    setForm((current) => ({ ...current, [key]: value }));
+  }
 
   async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const nextLogin = login.trim();
-    const nextErrors: {
-      login?: string;
-      password?: string;
-      passwordConfirm?: string;
-    } = {};
-
-    if (!nextLogin) {
-      nextErrors.login = uk.auth.loginRequired;
-    }
-    if (!password) {
-      nextErrors.password = uk.auth.passwordRequired;
-    } else if (password.length < MIN_PASSWORD_LENGTH) {
-      nextErrors.password = uk.auth.passwordTooShort;
-    }
-    if (!passwordConfirm) {
-      nextErrors.passwordConfirm = uk.auth.passwordConfirmRequired;
-    } else if (password && passwordConfirm !== password) {
-      nextErrors.passwordConfirm = uk.auth.passwordMismatch;
-    }
-
-    setFieldErrors(nextErrors);
+    const { payload, errors } = validateRegisterForm(form);
+    setFieldErrors(errors);
     setFormError(null);
 
-    if (
-      nextErrors.login ||
-      nextErrors.password ||
-      nextErrors.passwordConfirm
-    ) {
+    if (!payload) {
       return;
     }
 
     setIsPending(true);
     try {
-      await onSubmit({ login: nextLogin, password });
+      await onSubmit(payload);
     } catch (err) {
+      if (err instanceof AuthSubmitError) {
+        if (err.fieldErrors) {
+          setFieldErrors((current) => ({ ...current, ...err.fieldErrors }));
+        }
+        if (err.formError) {
+          setFormError(err.formError);
+        }
+        return;
+      }
+
       const message =
         err instanceof Error && err.message
           ? err.message
@@ -84,8 +76,8 @@ export function RegisterForm({ onSubmit }: RegisterFormProps) {
           name: "login",
           type: "text",
           autoComplete: "username",
-          value: login,
-          onChange: (e) => setLogin(e.target.value),
+          value: form.login,
+          onChange: (e) => updateField("login", e.target.value),
           disabled: isPending,
         }}
       />
@@ -98,8 +90,8 @@ export function RegisterForm({ onSubmit }: RegisterFormProps) {
           name: "password",
           type: "password",
           autoComplete: "new-password",
-          value: password,
-          onChange: (e) => setPassword(e.target.value),
+          value: form.password,
+          onChange: (e) => updateField("password", e.target.value),
           disabled: isPending,
         }}
       />
@@ -112,8 +104,8 @@ export function RegisterForm({ onSubmit }: RegisterFormProps) {
           name: "passwordConfirm",
           type: "password",
           autoComplete: "new-password",
-          value: passwordConfirm,
-          onChange: (e) => setPasswordConfirm(e.target.value),
+          value: form.passwordConfirm,
+          onChange: (e) => updateField("passwordConfirm", e.target.value),
           disabled: isPending,
         }}
       />

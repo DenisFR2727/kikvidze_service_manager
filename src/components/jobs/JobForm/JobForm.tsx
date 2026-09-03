@@ -1,9 +1,8 @@
 "use client";
 
-import { useId, useState, type FormEvent } from "react";
+import { useEffect, useId, useState } from "react";
 import { JobFormField } from "@/components/jobs/JobFormField";
 import {
-  EMPTY_CREATE_FORM,
   emptyCreateForm,
   validateCreateForm,
   type CreateFieldErrors,
@@ -15,6 +14,7 @@ import {
   type FormFeedback,
 } from "@/components/jobs/jobFormShared";
 import { ApiError } from "@/lib/api-client";
+import { sanitizePhoneInput } from "@/lib/phone";
 import { JOB_STATUS_LABELS, uk } from "@/lib/i18n/uk";
 import type { CreateJobInput, Job } from "@/lib/types";
 import styles from "./JobForm.module.scss";
@@ -59,16 +59,13 @@ export function JobForm({ onSubmit, categories, onCreated }: JobFormProps) {
     setForm((current) => ({ ...current, [key]: value }));
   }
 
-  function resetFormAfterSuccess(keepPhone: boolean) {
-    setForm((current) => ({
-      ...EMPTY_CREATE_FORM,
-      phone: keepPhone ? current.phone : "",
-    }));
+  function resetFormAfterSuccess() {
+    setForm(emptyCreateForm());
     setFieldErrors({});
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
 
     const { payload, errors } = validateCreateForm(form);
     setFieldErrors(errors);
@@ -81,7 +78,7 @@ export function JobForm({ onSubmit, categories, onCreated }: JobFormProps) {
     setIsPending(true);
     try {
       const result = await onSubmit(payload);
-      resetFormAfterSuccess(true);
+      resetFormAfterSuccess();
       setFeedback({
         type: "success",
         message: uk.job.saveSuccessDetail(
@@ -103,6 +100,17 @@ export function JobForm({ onSubmit, categories, onCreated }: JobFormProps) {
       setIsPending(false);
     }
   }
+
+  //  clear message after 5 seconds
+  useEffect(() => {
+    if (!feedback) return;
+
+    const time = setTimeout(() => {
+      setFeedback(null);
+    }, 3000);
+
+    return () => clearTimeout(time);
+  }, [feedback]);
 
   return (
     <section className={styles.panel} aria-labelledby={titleId}>
@@ -127,7 +135,8 @@ export function JobForm({ onSubmit, categories, onCreated }: JobFormProps) {
               placeholder: "+380671112233",
               value: form.phone,
               disabled: isPending,
-              onChange: (e) => updateField("phone", e.target.value),
+              onChange: (e) =>
+                updateField("phone", sanitizePhoneInput(e.target.value)),
             }}
           />
 
@@ -230,7 +239,6 @@ export function JobForm({ onSubmit, categories, onCreated }: JobFormProps) {
           <JobFormField
             id={fieldId("materialPrice")}
             label={uk.job.materialPrice}
-            required
             requiredMark={uk.common.requiredMark}
             error={fieldErrors.materialPrice}
             styles={fieldStyles}

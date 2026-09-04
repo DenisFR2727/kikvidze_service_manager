@@ -21,14 +21,65 @@
   color: var(--color-fg);
 }
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
 .reset {
   @include panel.secondary-action;
+}
+
+.toggleBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+
+  &:hover {
+    background: var(--color-surface-raised, var(--color-border));
+    border-color: var(--color-border-strong);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--color-focus-ring);
+  }
+}
+
+.toggleArrow {
+  display: block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 2px solid var(--color-fg);
+  border-bottom: 2px solid var(--color-fg);
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+
+  &[data-expanded="false"] {
+    transform: rotate(-135deg);
+  }
 }
 
 .grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--space-4);
+}
+
+.grid[hidden] {
+  display: none;
 }
 
 @media (min-width: 640px) {

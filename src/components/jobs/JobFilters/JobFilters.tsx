@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { useId, useState } from "react";
 import { JOB_STATUS_LABELS, uk } from "@/lib/i18n/uk";
 import { JOB_STATUSES } from "@/lib/types";
 import {
@@ -28,10 +28,13 @@ export function JobFilters({
 }: JobFiltersProps) {
   const idPrefix = useId();
   const titleId = `${idPrefix}-title`;
+  const filtersId = `${idPrefix}-filters`;
   const statusId = `${idPrefix}-status`;
   const categoryId = `${idPrefix}-category`;
   const fromId = `${idPrefix}-from`;
   const toId = `${idPrefix}-to`;
+
+  const [isExpanded, setIsExpanded] = useState(true);
 
   function patch(partial: Partial<JobFiltersValue>) {
     if (partial.from !== undefined || partial.to !== undefined) {
@@ -49,17 +52,35 @@ export function JobFilters({
         <h2 id={titleId} className={styles.title}>
           {uk.job.filtersTitle}
         </h2>
-        <button
-          type="button"
-          className={styles.reset}
-          onClick={onReset}
-          disabled={disabled || !active}
-        >
-          {uk.common.reset}
-        </button>
+        <div className={styles.headerActions}>
+          {isExpanded ? (
+            <button
+              type="button"
+              className={styles.reset}
+              onClick={onReset}
+              disabled={disabled || !active}
+            >
+              {uk.common.reset}
+            </button>
+          ) : null}
+          <button
+            type="button"
+            className={styles.toggleBtn}
+            aria-expanded={isExpanded}
+            aria-controls={filtersId}
+            onClick={() => setIsExpanded((v) => !v)}
+            title={isExpanded ? uk.common.collapse : uk.common.expand}
+          >
+            <span
+              className={styles.toggleArrow}
+              aria-hidden="true"
+              data-expanded={isExpanded}
+            />
+          </button>
+        </div>
       </div>
 
-      <div className={styles.grid}>
+      <div id={filtersId} className={styles.grid} hidden={!isExpanded}>
         <div className={styles.field}>
           <label className={styles.label} htmlFor={statusId}>
             {uk.job.status}

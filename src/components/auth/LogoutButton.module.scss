@@ -1,18 +1,30 @@
 @use "../../styles/buttons";
-
 .button {
   @include buttons.secondary-button;
 }
 
 .dialog {
   margin: auto;
-  padding: 0;
+  padding: 10px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-surface);
   box-shadow: var(--shadow-md);
   max-width: min(24rem, calc(100vw - 2rem));
   width: 100%;
+}
+.title,
+.description {
+  margin: 0;
+  text-align: center;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
 }
 
 .dialog::backdrop {

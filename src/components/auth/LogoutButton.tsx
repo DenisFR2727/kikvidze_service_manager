@@ -12,7 +12,7 @@ import styles from "./LogoutButton.module.scss";
  */
 export function LogoutButton() {
   const router = useRouter();
-  const [isPending, setIsPending] = useState(false);
+  const [isPending, setIsPending] = useState<boolean>(false);
 
   const dialogRef = useRef<HTMLDialogElement>(null);
   function openDialog() {
@@ -61,19 +61,23 @@ export function LogoutButton() {
           if (isPending) e.preventDefault();
         }}
       >
-        <h2 id="logout-title">Вийти з додатку?</h2>
-        <p>Ви впевнені, що хочете вийти?</p>
-        <button type="button" onClick={closeDialog} disabled={isPending}>
-          Скасувати
-        </button>
-        <button
-          type="button"
-          className={styles.button}
-          onClick={() => void handleLogout()}
-          disabled={isPending}
-        >
-          {isPending ? uk.auth.loggingOut : uk.auth.logout}
-        </button>
+        <h2 id="logout-title" className={styles.title}>
+          Вийти з додатку!
+        </h2>
+        <p className={styles.description}>Ви впевнені, що хочете вийти?</p>
+        <div className={styles.actions}>
+          <button type="button" onClick={closeDialog} disabled={isPending}>
+            Скасувати
+          </button>
+          <button
+            type="button"
+            className={styles.button}
+            onClick={() => void handleLogout()}
+            disabled={isPending}
+          >
+            {isPending ? uk.auth.loggingOut : uk.auth.logout}
+          </button>
+        </div>
       </dialog>
     </>
   );

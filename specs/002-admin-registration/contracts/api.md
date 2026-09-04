@@ -9,7 +9,7 @@
 ```json
 {
   "error": {
-    "code": "VALIDATION_ERROR | UNAUTHORIZED | NOT_FOUND | CONFLICT | INTERNAL",
+    "code": "VALIDATION_ERROR | UNAUTHORIZED | NOT_FOUND | CONFLICT | RATE_LIMITED | INTERNAL",
     "message": "Human-readable message",
     "fields": { "login": "Already taken" }
   }
@@ -22,11 +22,12 @@ This contract **extends** [001 api.md](../../001-client-job-booking/contracts/ap
 
 ## Auth
 
-### `POST /api/auth/register` *(new)*
+### `POST /api/auth/register` _(new)_
 
 Unauthenticated.
 
 **Body**:
+
 ```json
 {
   "login": "denys",
@@ -35,15 +36,19 @@ Unauthenticated.
 ```
 
 **Rules**:
+
 - `login`: trimmed, non-empty
 - `password`: min 8 characters
 - Unique `login` → else `409 CONFLICT`
 - On success: create Admin (bcrypt hash), set session cookie, return like login
+- Rate limit: **5 attempts / 15 min per IP** → else `429 RATE_LIMITED`
 
 **Responses**:
+
 - `201` `{ "ok": true, "admin": { "login": "denys" } }` + Set-Cookie `sid`
 - `400` validation (short password, empty login, …)
 - `409` login already taken
+- `429` too many registration attempts
 
 > UI may collect `passwordConfirm` locally; it is **not** required in the API body.
 
@@ -52,13 +57,22 @@ Unauthenticated.
 Unauthenticated. Behavior unchanged except credentials must match a **registered** Admin document (no env-seed bypass).
 
 **Body**:
+
 ```json
 { "login": "denys", "password": "secret123" }
 ```
 
+**Rate limits** (failed attempts only):
+
+- **10 / 3 min per IP**
+- **10 / 3 min per login** (across IPs)
+- Exceeded → `429 RATE_LIMITED`
+
 **Responses**:
+
 - `200` `{ "ok": true, "admin": { "login": "denys" } }` + Set-Cookie
 - `401` invalid credentials
+- `429` too many login attempts
 
 ### `POST /api/auth/logout`
 
@@ -67,12 +81,13 @@ Unchanged: `200` `{ "ok": true }` + clear cookie.
 ### `GET /api/auth/me`
 
 Unchanged:
+
 - `200` `{ "admin": { "login": "denys" } }`
 - `401` unauthorized
 
 ---
 
-## Clients *(scoped)*
+## Clients _(scoped)_
 
 All client routes require auth. Results and mutations limited to `adminId = session.adminId`.
 
@@ -87,7 +102,7 @@ Same response shape as 001; only owner’s clients.
 
 ---
 
-## Jobs *(scoped)*
+## Jobs _(scoped)_
 
 All job routes require auth and `adminId` scope.
 
@@ -103,6 +118,7 @@ Same query params as 001 (`status`, `from`, `to`, `category`, `q`, `clientId`). 
 ### `POST /api/jobs`
 
 Same body as 001. Server:
+
 1. Find-or-create Client by normalized phone **within** session `adminId`
 2. Create Job with same `adminId`, `status=queued`
 
@@ -118,7 +134,7 @@ Owner only; else `404`. Client retained.
 
 ---
 
-## Categories *(scoped)*
+## Categories _(scoped)_
 
 ### `GET /api/categories`
 
@@ -130,12 +146,12 @@ Distinct `Job.category` values **for session admin only**.
 
 ## Ownership guarantees (normative)
 
-| Action | Rule |
-|--------|------|
-| List/search | Never returns other admins’ rows |
+| Action                 | Rule                                 |
+| ---------------------- | ------------------------------------ |
+| List/search            | Never returns other admins’ rows     |
 | Get/patch/delete by id | Other admin’s id → `404` (not `403`) |
-| Create | Always stamps session `adminId` |
-| Phone uniqueness | Per `adminId` only |
+| Create                 | Always stamps session `adminId`      |
+| Phone uniqueness       | Per `adminId` only                   |
 
 ---
 

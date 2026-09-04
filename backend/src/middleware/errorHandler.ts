@@ -5,6 +5,7 @@ export const ERROR_CODES = [
   "UNAUTHORIZED",
   "NOT_FOUND",
   "CONFLICT",
+  "RATE_LIMITED",
   "INTERNAL",
 ] as const;
 
@@ -15,6 +16,7 @@ const STATUS_BY_CODE: Record<ErrorCode, number> = {
   UNAUTHORIZED: 401,
   NOT_FOUND: 404,
   CONFLICT: 409,
+  RATE_LIMITED: 429,
   INTERNAL: 500,
 };
 

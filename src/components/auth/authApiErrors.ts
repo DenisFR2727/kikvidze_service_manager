@@ -22,6 +22,10 @@ export function mapLoginApiError(err: unknown): AuthSubmitError | null {
     return null;
   }
 
+  if (err.code === "RATE_LIMITED" || err.status === 429) {
+    return new AuthSubmitError({ formError: uk.auth.rateLimited });
+  }
+
   if (err.isUnauthorized) {
     return new AuthSubmitError({ formError: uk.auth.invalidCredentials });
   }
@@ -45,6 +49,10 @@ export function mapLoginApiError(err: unknown): AuthSubmitError | null {
 export function mapRegisterApiError(err: unknown): AuthSubmitError | null {
   if (!(err instanceof ApiError)) {
     return null;
+  }
+
+  if (err.code === "RATE_LIMITED" || err.status === 429) {
+    return new AuthSubmitError({ formError: uk.auth.rateLimited });
   }
 
   if (err.code === "CONFLICT") {

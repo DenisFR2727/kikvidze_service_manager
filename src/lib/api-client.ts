@@ -8,6 +8,7 @@ export type ApiErrorCode =
   | "UNAUTHORIZED"
   | "NOT_FOUND"
   | "CONFLICT"
+  | "RATE_LIMITED"
   | "INTERNAL"
   | "NETWORK"
   | "UNKNOWN";
@@ -25,6 +26,7 @@ const KNOWN_ERROR_CODES = new Set<ApiErrorCode>([
   "UNAUTHORIZED",
   "NOT_FOUND",
   "CONFLICT",
+  "RATE_LIMITED",
   "INTERNAL",
 ]);
 

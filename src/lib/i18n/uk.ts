@@ -49,6 +49,7 @@ export const uk = {
     invalidCredentials: "Невірний логін або пароль",
     loginFailed: "Не вдалося увійти. Спробуйте ще раз.",
     registerFailed: "Не вдалося зареєструватися. Спробуйте ще раз.",
+    rateLimited: "Забагато спроб. Спробуйте знову через 3 хвилини.",
   },
   common: {
     requiredMark: "*",

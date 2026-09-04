@@ -9,7 +9,7 @@
 ```json
 {
   "error": {
-    "code": "VALIDATION_ERROR | UNAUTHORIZED | NOT_FOUND | CONFLICT | INTERNAL",
+    "code": "VALIDATION_ERROR | UNAUTHORIZED | NOT_FOUND | CONFLICT | RATE_LIMITED | INTERNAL",
     "message": "Human-readable message",
     "fields": { "phone": "Required" }
   }
@@ -32,6 +32,7 @@ Unauthenticated.
 **Responses**:
 - `200` `{ "ok": true, "admin": { "login": "admin" } }` + Set-Cookie
 - `401` invalid credentials
+- `429` too many login attempts (`RATE_LIMITED`; see 002 auth rate limits)
 
 ### `POST /api/auth/logout`
 

@@ -7,6 +7,11 @@ import {
   requireAuth,
   setAdminSession,
 } from "../middleware/auth.js";
+import {
+  loginAccountRateLimit,
+  loginIpRateLimit,
+  registerIpRateLimit,
+} from "../middleware/authRateLimit.js";
 import { AppError } from "../middleware/errorHandler.js";
 import { validateBody } from "../middleware/validate.js";
 import { Admin } from "../models/Admin.js";
@@ -129,12 +134,25 @@ async function meHandler(req: Request, res: Response): Promise<void> {
  * Auth routes:
  * - `POST /register`, `POST /login`, `POST /logout` — public
  * - `GET /me` — requires session (`requireAuth`) + existing Admin row
+ *
+ * Login/register are rate-limited (per IP; login also per account).
  */
 export function createAuthRouter(): Router {
   const router = Router();
 
-  router.post("/register", validateBody(registerBodySchema), registerHandler);
-  router.post("/login", validateBody(loginBodySchema), loginHandler);
+  router.post(
+    "/register",
+    registerIpRateLimit,
+    validateBody(registerBodySchema),
+    registerHandler,
+  );
+  router.post(
+    "/login",
+    loginIpRateLimit,
+    validateBody(loginBodySchema),
+    loginAccountRateLimit,
+    loginHandler,
+  );
   router.post("/logout", logoutHandler);
   router.get("/me", requireAuth, meHandler);
 

@@ -74,6 +74,36 @@
   --auth-form-max-width: 22rem;
 }
 
+[data-theme="dark"] {
+  --color-bg: #12171e;
+  --color-bg-elevated: #1a222c;
+  --color-surface: #1e2733;
+  --color-fg: #e8eef4;
+  --color-fg-muted: #9aa8b5;
+  --icon-chevron-muted: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239aa8b5' d='M3 4.5 6 8l3-3.5'/%3E%3C/svg%3E");
+  --color-border: #2f3b4a;
+  --color-border-strong: #4a5a6c;
+  --color-accent: #3db8b2;
+  --color-accent-hover: #5ec9c3;
+  --color-accent-subtle: #1a3332;
+  --color-danger: #f97066;
+  --color-danger-subtle: #3b1c1a;
+  --color-warning: #fdb022;
+  --color-warning-subtle: #3b2a12;
+  --color-status-queued: #7eb0e0;
+  --color-status-queued-bg: #1a2a3a;
+  --color-status-in-progress: #3db8b2;
+  --color-status-in-progress-bg: #1a3332;
+  --color-status-done: #6fcf7f;
+  --color-status-done-bg: #1a2e22;
+  --color-status-cancelled: #9aa8b5;
+  --color-status-cancelled-bg: #252b33;
+  --background: var(--color-bg);
+  --foreground: var(--color-fg);
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 30%);
+  --shadow-md: 0 4px 12px rgb(0 0 0 / 40%);
+}
+
 @media (min-width: 480px) {
   :root {
     --layout-gutter: var(--space-4);

@@ -1,0 +1,16 @@
+@use "../../styles/buttons";
+
+.button {
+  @include buttons.secondary-button;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15px;
+  padding: var(--space-2);
+  line-height: 0;
+}
+
+.icon {
+  width: 1.125rem;
+  height: 1.125rem;
+}
